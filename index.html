@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <title>Teacher Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #eceff1; padding: 20px; color: #333; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .nav-tabs { display: flex; background: #ffe0b2; border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+        .tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; font-weight: bold; color: #d84315; }
+        .tab.active { background: #ffccbc; border-bottom: 4px solid #d84315; }
+        .tab-content { display: none; } .tab-content.active { display: block; }
+        .form-group { margin-bottom: 20px; } label { font-weight: bold; margin-bottom: 5px; display: block; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-family: 'Sarabun'; }
+        .btn { background: #2e7d32; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+        #loading { display: none; text-align: center; color: #1976d2; font-weight: bold; padding: 10px; }
+        .quest-item { display: flex; gap: 10px; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ddd; padding: 10px; } th { background: #00838f; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #d84315;">👨‍🏫 ระบบจัดการเกม</h1>
+        <div class="nav-tabs">
+            <div class="tab active" onclick="switchTab('tabUsers', this)">👥 ข้อมูล & ประวัติ</div>
+            <div class="tab" onclick="switchTab('tabQuest', this)">📝 เพิ่มภารกิจ</div>
+            <div class="tab" onclick="switchTab('tabShop', this)">🎁 ร้านค้า</div>
+            <div class="tab" onclick="switchTab('tabRank', this)">⭐ จัดการระดับยศ</div>
+        </div>
+        <div id="loading">⏳ กำลังทำงาน...</div>
+
+        <!-- หน้า 1: ข้อมูล -->
+        <div id="tabUsers" class="tab-content active">
+            <button class="btn" style="background: #0277bd; width: auto; margin-bottom: 15px;" onclick="fetchData()">🔄 อัปเดตข้อมูลล่าสุด</button>
+            <h3>👥 นักเรียน</h3> <div style="max-height: 200px; overflow-y: auto;"><table><tbody id="userTable"></tbody></table></div>
+            <h3>⏱️ ประวัติ</h3> <div style="max-height: 300px; overflow-y: auto;"><table><tbody id="logTable"></tbody></table></div>
+        </div>
+
+        <!-- หน้า 2: เควสแบบชุด -->
+        <div id="tabQuest" class="tab-content">
+            <div class="form-group"><label>หัวข้อภารกิจ</label><input type="text" id="qTitle"></div>
+            <div class="form-group"><label>ประเภท</label><select id="qType"><option value="word">คำศัพท์</option><option value="sentence">ประโยค</option><option value="story">เรื่องสั้น</option></select></div>
+            <div class="form-group">
+                <label>รูปแบบภารกิจ</label>
+                <select id="qIsSet" onchange="toggleQuestSet()"><option value="false">ข้อเดียว</option><option value="true">แบบชุด (หลายข้อต่อเนื่อง)</option></select>
+            </div>
+            <div class="form-group" id="questContentArea">
+                <label>เนื้อหาที่ต้องการให้อ่าน</label>
+                <div id="qSetContainer"><div class="quest-item"><input type="text" class="q-item-input" placeholder="พิมพ์ข้อความข้อที่ 1"></div></div>
+                <button id="addMoreBtn" onclick="addQuestBox()" style="display:none; background:#0277bd; color:white; padding:5px 10px; border:none; border-radius:5px; margin-top:5px; cursor:pointer;">+ เพิ่มข้อถัดไป</button>
+            </div>
+            <div class="form-group" style="display:flex; gap:10px;">
+                <div style="flex:1"><label>ความยาก</label><select id="qDiff"><option value="⭐">⭐ ง่าย</option><option value="⭐⭐">⭐⭐ ปานกลาง</option><option value="⭐⭐⭐">⭐⭐⭐ ยาก</option></select></div>
+                <div style="flex:1"><label>รางวัล (แต้ม)</label><input type="number" id="qPts" value="10"></div>
+            </div>
+            <button class="btn" onclick="addQuest()">➕ บันทึกภารกิจ</button>
+        </div>
+
+        <!-- หน้า 3: ร้านค้า & ลดขนาดภาพอัตโนมัติ -->
+        <div id="tabShop" class="tab-content">
+            <div class="form-group"><label>🔑 รหัสโฟลเดอร์ Drive (ระบบจำให้อัตโนมัติ)</label><input type="text" id="driveFolderId"></div>
+            <div class="form-group"><label>ชื่อของรางวัล</label><input type="text" id="sName"></div>
+            <div class="form-group">
+                <label>อัปโหลดรูปภาพ <span style="color:#e53935; font-size:12px;">(ระบบจะย่อขนาดภาพให้อัตโนมัติหากใหญ่เกินไป)</span></label>
+                <input type="file" id="sImage" accept="image/*" style="background:#f9fbe7; border:2px dashed #8bc34a; padding:15px; cursor:pointer;">
+            </div>
+            <div class="form-group"><label>หรือใช้อีโมจิ</label><input type="text" id="sIcon" placeholder="เช่น ✏️"></div>
+            <div class="form-group"><label>ราคา (แต้ม)</label><input type="number" id="sPoints" value="50"></div>
+            <button class="btn" style="background: #ef6c00;" onclick="addShopItem()">➕ บันทึกของรางวัล</button>
+        </div>
+
+        <!-- หน้า 4: จัดการระดับยศ -->
+        <div id="tabRank" class="tab-content">
+            <p>กำหนดระดับยศของนักเรียนตามคะแนนที่สะสมได้</p>
+            <div id="rankContainer"></div>
+            <button onclick="addRankRow()" style="background:#0277bd; color:white; padding:8px 15px; border:none; border-radius:5px; margin:10px 0; cursor:pointer;">+ เพิ่มระดับยศ</button>
+            <button class="btn" onclick="saveRanks()">💾 บันทึกระบบยศ</button>
+        </div>
+    </div>
+
+    <script>
+        // 🚨 วาง URL ตรงนี้
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwLoxr1Jc-tIu0jVbt9ijbio98M7ZetfeTPjHf_AKFY1qPXFIhbKsG9kNDqbKcVa__g1g/exec";
+        
+        let allRanks = [];
+
+        window.onload = fetchData;
+        function switchTab(id, el) { document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.getElementById(id).classList.add('active'); el.classList.add('active'); }
+        
+        async function fetchData() {
+            if(!SCRIPT_URL.includes("http")) return;
+            try {
+                const data = await (await fetch(SCRIPT_URL)).json();
+                
+                // ตารางเด็ก
+                document.getElementById('userTable').innerHTML = "<tr><th>รหัส</th><th>ชื่อ</th><th>แต้ม</th></tr>" + (data.users.length ? data.users.reverse().map(u=>`<tr><td>${u.UserID}</td><td>${u.Avatar} ${u.DisplayName}</td><td><b>${u.TotalPoints}</b></td></tr>`).join('') : "<tr><td colspan='3'>ไม่มีข้อมูล</td></tr>");
+                document.getElementById('logTable').innerHTML = "<tr><th>เวลา</th><th>ชื่อ</th><th>กิจกรรม</th><th>รายละเอียด</th></tr>" + (data.logs.length ? data.logs.reverse().map(l=>`<tr><td>${l.Date}</td><td>${l.Name}</td><td>${l.Action}</td><td>${l.Detail}</td></tr>`).join('') : "<tr><td colspan='4'>ไม่มีข้อมูล</td></tr>");
+                
+                // ดึงการตั้งค่า Folder
+                const folderSet = data.settings.find(s => s.SettingKey === "FolderID");
+                if(folderSet) document.getElementById('driveFolderId').value = folderSet.SettingValue;
+
+                // ดึงการตั้งค่ายศ
+                allRanks = data.ranks || []; renderRanks();
+            } catch(e){}
+        }
+
+        async function sendAPI(payload, cb) {
+            document.getElementById('loading').style.display = "block";
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+            document.getElementById('loading').style.display = "none";
+            cb();
+        }
+
+        // ระบบเควสแบบชุด
+        function toggleQuestSet() {
+            const isSet = document.getElementById('qIsSet').value === "true";
+            document.getElementById('addMoreBtn').style.display = isSet ? "block" : "none";
+            if(!isSet) document.getElementById('qSetContainer').innerHTML = `<div class="quest-item"><input type="text" class="q-item-input" placeholder="พิมพ์ข้อความ"></div>`;
+        }
+        function addQuestBox() {
+            document.getElementById('qSetContainer').insertAdjacentHTML('beforeend', `<div class="quest-item"><input type="text" class="q-item-input" placeholder="พิมพ์ข้อความ"><button onclick="this.parentElement.remove()">❌</button></div>`);
+        }
+        function addQuest() {
+            const inputs = document.querySelectorAll('.q-item-input');
+            const contents = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== "");
+            if(!document.getElementById('qTitle').value || contents.length === 0) return alert("กรอกข้อมูลให้ครบ");
+            sendAPI({ action: "addQuest", questId: "Q"+Date.now(), title: document.getElementById('qTitle').value, type: document.getElementById('qType').value, content: contents.join("|"), difficulty: document.getElementById('qDiff').value, points: document.getElementById('qPts').value, isSet: document.getElementById('qIsSet').value }, () => { alert("บันทึกสำเร็จ"); });
+        }
+
+        // ระบบย่อขนาดภาพ
+        function resizeImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas'); const MAX_SIZE = 800; // ขนาดสูงสุด
+                    let w = img.width; let h = img.height;
+                    if(w > h && w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } else if(h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    callback(canvas.toDataURL('image/jpeg', 0.8).split(',')[1]); // คืนค่า Base64 ที่ลดขนาดแล้ว
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function addShopItem() {
+            const name = document.getElementById('sName').value; const fid = document.getElementById('driveFolderId').value;
+            const file = document.getElementById('sImage').files[0];
+            if(!name) return alert("ใส่ชื่อรางวัลด้วยครับ");
+            
+            let payload = { action: "addShopItem", itemId: "S"+Date.now(), name: name, points: document.getElementById('sPoints').value, icon: document.getElementById('sIcon').value||"🎁", folderId: fid };
+            if (file) {
+                if(!fid) return alert("กรุณาใส่รหัส Folder ID");
+                document.getElementById('loading').style.display = "block";
+                resizeImage(file, (base64) => {
+                    payload.imageFile = { filename: file.name, mimeType: 'image/jpeg', data: base64 };
+                    sendAPI(payload, () => { alert("อัปโหลดและบันทึกสำเร็จ"); fetchData(); });
+                });
+            } else { sendAPI(payload, () => { alert("บันทึกสำเร็จ"); }); }
+        }
+
+        // ระบบจัดการยศ
+        function renderRanks() {
+            document.getElementById('rankContainer').innerHTML = allRanks.map((r, i) => `
+                <div style="display:flex; gap:10px; margin-bottom:10px; background:#f5f5f5; padding:10px; border-radius:5px;">
+                    <input type="text" value="${r.RankName}" placeholder="ชื่อยศ" class="r-name" style="flex:2">
+                    <input type="number" value="${r.MinPoints}" placeholder="คะแนนขั้นต่ำ" class="r-pts" style="flex:1">
+                    <button onclick="this.parentElement.remove()" style="background:#e53935; color:white; border:none; padding:5px 10px; cursor:pointer;">ลบ</button>
+                </div>
+            `).join('');
+        }
+        function addRankRow() { allRanks.push({RankName:"", MinPoints:0}); renderRanks(); }
+        function saveRanks() {
+            const names = document.querySelectorAll('.r-name'); const pts = document.querySelectorAll('.r-pts');
+            let newRanks = [];
+            for(let i=0; i<names.length; i++) { if(names[i].value) newRanks.push({name: names[i].value, points: Number(pts[i].value)}); }
+            newRanks.sort((a,b) => a.points - b.points); // เรียงคะแนนจากน้อยไปมาก
+            sendAPI({ action: "saveRank", ranks: newRanks }, () => { alert("บันทึกระบบยศสำเร็จ!"); fetchData(); });
+        }
+    </script>
+</body>
+</html>
