@@ -3,279 +3,607 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-width=1.0">
-    <title>Teacher Dashboard - อัศวินนักอ่าน</title>
+    <title>อัศวินนักอ่าน - โรงเรียนบ้านหนองโสน</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #eceff1; padding: 20px; color: #333; }
-        .container { max-width: 950px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .nav-tabs { display: flex; flex-wrap: wrap; background: #ffe0b2; border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
-        .tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; font-weight: bold; color: #d84315; min-width: 120px;}
-        .tab.active { background: #ffccbc; border-bottom: 4px solid #d84315; }
-        .tab-content { display: none; } .tab-content.active { display: block; }
-        .form-group { margin-bottom: 20px; } label { font-weight: bold; margin-bottom: 5px; display: block; }
-        input[type="text"], input[type="number"], select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-family: 'Sarabun'; }
-        .btn { background: #2e7d32; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
-        .btn:hover { background: #1b5e20; }
-        #loading { display: none; text-align: center; color: #1976d2; font-weight: bold; padding: 10px; }
-        .quest-item { display: flex; gap: 10px; margin-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; } th, td { border: 1px solid #ddd; padding: 10px; text-align: center;} th { background: #00838f; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .badge-pending { background: #ff9800; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px; }
-        .badge-done { background: #4caf50; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px; }
-        .class-checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; background: #f5f5f5; padding: 15px; border-radius: 5px; border: 1px solid #ccc;}
-        .class-checkbox-group label { display: flex; align-items: center; font-weight: normal; margin-bottom: 0; cursor: pointer; }
-        .class-checkbox-group input { width: auto; margin-right: 5px; transform: scale(1.2); }
+        :root { --primary: #00838f; --secondary: #ff9800; --bg: #f0f2f5; }
+        body { font-family: 'Sarabun'; background: var(--bg); margin: 0; padding: 0; color: #333; overflow-x: hidden; }
+        img { border: none; outline: none; } /* 🌟 ป้องกันขอบรูปหลอน */
+        .page { display: none; max-width: 850px; margin: auto; padding: 20px; } .page.active { display: block; }
         
-        /* สไตล์สำหรับกล่องป๊อปอัพสถิติรายบุคคล */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 700px; max-height: 85vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .login-box { background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-top: 50px; }
+        input[type="text"], input[type="password"] { padding: 15px; width: 80%; max-width: 300px; border-radius: 10px; border: 2px solid #ccc; font-size: 18px; text-align: center; margin-bottom: 10px; font-family: 'Sarabun'; }
+        select { padding: 15px; width: 80%; max-width: 330px; border-radius: 10px; border: 2px solid #ccc; font-size: 18px; text-align: center; margin-bottom: 20px; font-family: 'Sarabun'; }
+        
+        .header { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 15px 15px 0 0; margin-top: 10px; flex-wrap: wrap; gap: 15px;}
+        .level-container { width: 100%; max-width: 250px; text-align: left; }
+        .lvl-text { font-size: 16px; font-weight: bold; color: #fff; margin-bottom: 3px; display: flex; justify-content: space-between; align-items: flex-end;}
+        .exp-bar-bg { width: 100%; height: 14px; background: rgba(255,255,255,0.3); border-radius: 10px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.5); }
+        .exp-bar-fill { height: 100%; background: linear-gradient(90deg, #ccff90, #00e676); width: 0%; transition: width 0.5s ease-out; }
+        .exp-num { position: absolute; width: 100%; text-align: center; font-size: 10px; font-weight: bold; color: #333; top: -1px; }
+
+        .nav-tabs { display: flex; flex-wrap: wrap; background: white; border-radius: 0 0 15px 15px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; font-weight: bold; color: #555; min-width: 75px;} .tab.active { color: var(--primary); border-bottom: 4px solid var(--primary); background: #e0f7fa; }
+        
+        .shop-nav { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;}
+        .shop-tab { padding: 8px 15px; border-radius: 20px; background: #eee; cursor: pointer; white-space: nowrap; font-weight: bold; color: #555; border: 2px solid transparent;}
+        .shop-tab.active { background: #ffe0b2; color: #e65100; border-color: #ff9800; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 15px; padding: 20px; text-align: center; border: 2px solid #eee; position: relative; }
+        .btn { border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer; font-size: 16px; font-weight: bold; font-family:'Sarabun'; transition: 0.2s;}
+        .btn-primary { background: var(--primary); color: white; } .btn-secondary { background: var(--secondary); color: white; }
+        .btn-disabled { background: #ccc; color: white; cursor: not-allowed; }
+        
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:100; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 600px; text-align: center; }
+        .reading-text { font-size: 35px; font-weight: bold; margin: 20px 0; padding: 20px; background: #fff8e1; border-radius: 15px; border: 2px dashed #ffc107; max-height: 400px; overflow-y: auto; letter-spacing: 1px;}
+        
+        .mic-btn { background: #4caf50; color: white; font-size: 20px; padding: 15px 40px; border-radius: 50px; cursor: pointer; margin:10px; border:none; box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); width: 100%; max-width: 300px;}
+        .mic-btn.recording { background: #f44336; animation: pulseMic 1.5s infinite; }
+        @keyframes pulseMic { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
+        #loadingOverlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:999; justify-content:center; align-items:center; flex-direction:column; }
+        .spinner { border: 8px solid #f3f3f3; border-top: 8px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .score-box { background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-bottom: 5px; text-align: right;}
+        .coin-box { background: white; color: #ff9800; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: right;}
+        
+        #creationAvatars { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .select-item { width: 80px; height: 80px; border-radius: 10px; font-size: 40px; display: flex; justify-content: center; align-items: center; border: 3px solid #ccc; cursor: pointer; background: white; overflow: hidden; } 
+        .select-item img { width: 100%; height: 100%; object-fit: contain; }
+        .select-item.selected { border-color: var(--primary); background: #e0f7fa; box-shadow: 0 0 10px rgba(0, 131, 143, 0.5); }
+        
+        .avatar-header { width: 150px; height: 150px; border-radius: 0; border: 3px solid white; display: flex; justify-content: center; align-items: center; background: white; overflow: hidden; flex-shrink: 0;}
+        .avatar-header img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .avatar-wardrobe { position: relative; overflow: hidden; width: 100%; max-width: 700px; height: 450px; border-radius: 20px; margin: 0 auto 20px auto; border: 4px solid var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.1); background: #fff; transition: 0.3s; }
+        
+        .avatar-wardrobe.edit-mode { max-width: 350px; background: #e0f7fa; }
+        .avatar-wardrobe.edit-mode .char-group { transform: scale(1.4); transform-origin: bottom center; }
+
+        .avatar-creation { position: relative; overflow: hidden; width: 250px; height: 350px; border-radius: 20px; margin: 0 auto 20px auto; border: 4px solid #ff9800; box-shadow: 0 10px 20px rgba(0,0,0,0.1); background: #fff8e1; }
+
+        .char-group { position: absolute; width: 250px; height: 90%; top: 5%; z-index: 2; transition: 0.3s;}
+        .partner-group { position: absolute; width: 250px; height: 90%; top: 5%; z-index: 1;}
+        .decor-item { position: absolute; width: 100%; height: 100%; top: 0; left: 0; display: flex; justify-content: center; align-items: center;}
+        
+        .draggable { cursor: grab; } .draggable:active { cursor: grabbing; }
+        .base-avatar-img, .layer-img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: contain; 
+    object-position: bottom center; /* 🌟 ตัวนี้จะสั่งให้รูปภาพไปกองรวมกันที่ด้านล่าง */
+    pointer-events: none; 
+    position: absolute; 
+    bottom: 0; /* 🌟 สั่งให้ชิดขอบล่างสุด */
+    left: 0; 
+}
+        .emoji-layer { position: absolute; display: flex; justify-content: center; width: 100%; font-size: 50px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); pointer-events: none; }
+
+        .breathe-anim { animation: breathe 3s infinite ease-in-out; }
+        @keyframes breathe { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
+
+        .inv-card { background: white; border-radius: 10px; padding: 10px; text-align: center; border: 2px solid #ccc; cursor: pointer; transition: 0.2s; position: relative;}
+        .inv-card.equipped { border-color: #4caf50; background: #e8f5e9; box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);}
+        .new-badge { position:absolute; top:-8px; left:-8px; background:#f44336; color:white; padding:4px 10px; border-radius:12px; font-weight:bold; font-size:12px; transform:rotate(-10deg); box-shadow:0 2px 5px rgba(0,0,0,0.2); z-index:10; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 style="text-align: center; color: #d84315;">👨‍🏫 ระบบจัดการเกม (โรงเรียนบ้านหนองโสน)</h1>
-        
+    <div id="loadingOverlay"><div class="spinner"></div><h2 style="color: var(--primary);" id="loadTxt">กำลังเชื่อมต่อระบบ...</h2></div>
+
+    <div id="loginPage" class="page active">
+        <div class="login-box">
+            <h1 style="color: var(--primary);">🌟 อัศวินนักอ่าน</h1><p>โรงเรียนบ้านหนองโสน</p>
+            <input type="text" id="loginId" placeholder="รหัสนักเรียน"><br>
+            <select id="loginClass"><option value="">-- เลือกระดับชั้น --</option></select><br>
+            <button class="btn btn-primary" onclick="login()" style="width: 80%; max-width: 330px;">เข้าสู่ระบบ</button>
+        </div>
+    </div>
+
+    <div id="creationPage" class="page">
+        <div class="login-box">
+            <h1 style="color: var(--primary);">🎨 สร้างตัวละครอัศวินของคุณ</h1>
+            <input type="text" id="newUserName" placeholder="ตั้งชื่อเล่น (เช่น น้องพอใจ)" style="margin-bottom: 20px;"><br>
+            <div id="creationAvatars"></div>
+            <div id="avatarPreview" class="avatar-creation frame-none"></div>
+            <br><button class="btn btn-primary" onclick="saveNewUser()" style="width: 100%; max-width: 300px;">🚀 บันทึกตัวละคร</button>
+        </div>
+    </div>
+
+    <div id="mainPage" class="page">
+        <button onclick="refreshData()" class="btn" style="background:#e0f7fa; color:var(--primary); width:100%; margin-bottom:10px;">🔄 อัปเดตกระดานภารกิจ</button>
+
+        <div class="header">
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <div id="headerAvatarContainer" class="avatar-header"></div>
+                <div class="level-container">
+                    <!-- 🌟 กู้คืนชื่อที่เผลอลบทิ้งไป เพื่อป้องกันระบบพัง -->
+                    <div id="headerName" style="font-size: 18px; font-weight: bold; margin-bottom: 2px; color: white;">ชื่อ</div>
+                    <div class="lvl-text"><span id="headerLvlNum">Lv.1</span> <span id="headerRankName" style="color: #ffe0b2;">-</span></div>
+                    <div class="exp-bar-bg">
+                        <div id="headerExpFill" class="exp-bar-fill"></div>
+                        <div id="headerExpText" class="exp-num">0 / 100</div>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                <div class="score-box">🏆 Exp สรุปรวม: <span id="headerPoints">0</span></div>
+                <div class="coin-box">💰 เหรียญ Coins: <span id="headerCoins">0</span></div>
+                <div id="buffIndicator"></div>
+            </div>
+        </div>
+
         <div class="nav-tabs">
-            <div class="tab active" onclick="switchTab('tabRedeem', this)">🛍️ คิวแลกรางวัล</div>
-            <div class="tab" onclick="switchTab('tabUsers', this)">👥 นักเรียน & สถิติ</div>
-            <div class="tab" onclick="switchTab('tabQuest', this)">📝 เพิ่มภารกิจ</div>
-            <div class="tab" onclick="switchTab('tabShop', this)">🎁 ร้านค้า</div>
-            <div class="tab" onclick="switchTab('tabSettings', this)">⚙️ ระดับชั้น/ยศ</div>
+            <div class="tab active" onclick="switchTab('qTab')">📜 ภารกิจ</div>
+            <div class="tab" onclick="switchTab('sTab')">🎁 ร้านค้า</div>
+            <div class="tab" onclick="switchTab('wTab')">👗 ตู้เสื้อผ้า/จัดฉาก</div>
+            <div class="tab" onclick="switchTab('cTab')">🎟️ เติมคูปอง</div>
+        </div>
+
+        <div id="qTab" class="tab-content active"><div class="grid" id="qBox"></div></div>
+        
+        <div id="sTab" class="tab-content" style="display: none;">
+            <div class="shop-nav">
+                <div class="shop-tab active" onclick="filterShop('all', this)">หมวดหมู่ทั้งหมด</div>
+                <div class="shop-tab" onclick="filterShop('costume', this)">👕 ชุด/ตัวละคร</div>
+                <div class="shop-tab" onclick="filterShop('buff', this)">🔥 ไอเทมบัฟพิเศษ</div>
+                <div class="shop-tab" onclick="filterShop('real', this)">🎁 ของรางวัลจริง</div>
+            </div>
+            <div class="grid" id="shopGridBox"></div>
+        </div>
+
+        <div id="wTab" class="tab-content" style="display: none;">
+            <div style="background: white; padding: 20px; border-radius: 15px; text-align: center;">
+                <div style="display:flex; justify-content:center; gap:10px; margin-bottom:15px;">
+                    <button id="btnMoveMode" class="btn btn-primary" onclick="setWardrobeMode('move')">🖐 โหมดจัดวางตกแต่งฉาก</button>
+                    <button id="btnEditMode" class="btn" style="background:#e0e0e0; color:#333;" onclick="setWardrobeMode('edit')">👕 โหมดเลือกแต่งตัว</button>
+                </div>
+                <div id="wardrobeAvatarContainer" class="avatar-wardrobe frame-none"></div>
+                <div id="savePosSection" style="margin-bottom: 20px;">
+                    <button class="btn" style="background:#4caf50; color:white; width:100%; max-width: 300px;" onclick="savePositions()">💾 บันทึกตำแหน่งไอเทมและตัวละคร</button>
+                </div>
+                <div id="inventorySection" style="display:none;">
+                    <p style="color: #777; margin-bottom:10px;">คลิกที่ไอเทมด้านล่างเพื่อสวมใส่ (คลิกตัวละครเพื่อตั้งเป็นเพื่อนในฉาก)</p>
+                    <div class="grid" id="inventoryBox" style="grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));"></div>
+                </div>
+            </div>
         </div>
         
-        <div id="loading">⏳ กำลังทำงาน...</div>
-
-        <!-- หน้า 0: คิวแลกรางวัล -->
-        <div id="tabRedeem" class="tab-content active">
-            <button class="btn" style="background: #0277bd; width: auto; margin-bottom: 15px;" onclick="fetchData()">🔄 โหลดข้อมูลล่าสุด</button>
-            <h3>🛍️ รายการขอแลกรางวัลจากนักเรียน</h3>
-            <div style="max-height: 400px; overflow-y: auto;"><table><tbody id="redeemTable"></tbody></table></div>
-        </div>
-
-        <!-- หน้า 1: รายชื่อนักเรียนและดูสถิติแยกรายบุคคล -->
-        <div id="tabUsers" class="tab-content">
-            <button class="btn" style="background: #0277bd; width: auto; margin-bottom: 15px;" onclick="fetchData()">🔄 อัปเดตข้อมูลนักเรียน</button>
-            <h3>👥 ตารางรายชื่อภาพรวมนักเรียน (แสดงคะแนนเลื่อนยศและเหรียญ Coins)</h3>
-            <div style="max-height: 500px; overflow-y: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>รหัส</th>
-                            <th>ระดับชั้น</th>
-                            <th>นักเรียน</th>
-                            <th>🏆 คะแนนเลื่อนยศ</th>
-                            <th>💰 เหรียญช็อปปิ้ง (Coins)</th>
-                            <th>🔍 เจาะลึก</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userTable">
-                        <tr><td colspan="6">กำลังโหลดข้อมูล...</td></tr>
-                    </tbody>
-                </table>
+        <div id="cTab" class="tab-content" style="display: none;">
+            <div class="login-box" style="margin-top:20px; border:2px dashed var(--primary);">
+                <h2 style="color:var(--primary);">🎟️ กล่องเติมรหัสโค้ดคูปองรางวัล</h2>
+                <p>ใส่โค้ดรับเหรียญ Coins พิเศษจากกิจกรรมของคุณครูได้จากตรงนี้เลย!</p>
+                <input type="text" id="couponInputCode" placeholder="พิมพ์รหัสโค้ดตรงนี้"><br>
+                <button class="btn btn-secondary" onclick="claimCouponCode()" style="width:100%; max-width:300px; margin-top:10px;">🚀 ตรวจสอบและรับเหรียญ</button>
             </div>
         </div>
 
-        <!-- หน้า 2: เพิ่มภารกิจ -->
-        <div id="tabQuest" class="tab-content">
-            <div class="form-group"><label>หัวข้อภารกิจ</label><input type="text" id="qTitle"></div>
-            <div class="form-group">
-                <label>กำหนดระดับชั้นที่สามารถทำเควสนี้ได้</label>
-                <div class="class-checkbox-group" id="qClassSelect"></div>
-            </div>
-            <div class="form-group"><label>ประเภท</label><select id="qType" onchange="adjustTextarea()"><option value="word">คำศัพท์</option><option value="sentence">ประโยค</option><option value="story">เรื่องสั้น (ขยายช่อง 50 บรรทัด)</option></select></div>
-            <div class="form-group">
-                <label>รูปแบบภารกิจ</label>
-                <select id="qIsSet" onchange="toggleQuestSet()"><option value="false">ข้อเดียว</option><option value="true">แบบชุด (หลายข้อต่อเนื่อง)</option></select>
-            </div>
-            <div class="form-group" id="questContentArea">
-                <label>เนื้อหาที่ต้องการให้อ่าน</label>
-                <div id="qSetContainer"><div class="quest-item"><textarea class="q-item-input" rows="2" placeholder="พิมพ์ข้อความข้อที่ 1"></textarea></div></div>
-                <button id="addMoreBtn" onclick="addQuestBox()" style="display:none; background:#0277bd; color:white; padding:5px 10px; border:none; border-radius:5px; margin-top:5px; cursor:pointer;">+ เพิ่มข้อถัดไป</button>
-            </div>
-            <div class="form-group" style="display:flex; gap:10px;">
-                <div style="flex:1"><label>ความยาก</label><select id="qDiff"><option value="⭐">⭐ ง่าย</option><option value="⭐⭐">⭐⭐ ปานกลาง</option><option value="⭐⭐⭐">⭐⭐⭐ ยาก</option></select></div>
-                <div style="flex:1"><label>รางวัล (แต้ม)</label><input type="number" id="qPts" value="10"></div>
-            </div>
-            <button class="btn" onclick="addQuest()">➕ บันทึกภารกิจ</button>
-        </div>
-
-        <!-- หน้า 3: ร้านค้า -->
-        <div id="tabShop" class="tab-content">
-            <div class="form-group"><label>🔑 รหัสโฟลเดอร์ Drive</label><input type="text" id="driveFolderId"></div>
-            <div class="form-group"><label>ชื่อของรางวัล</label><input type="text" id="sName"></div>
-            <div class="form-group"><label>อัปโหลดรูปภาพ</label><input type="file" id="sImage" accept="image/*" style="background:#f9fbe7; border:2px dashed #8bc34a; padding:15px; cursor:pointer;"></div>
-            <div class="form-group"><label>หรือใช้อีโมจิ</label><input type="text" id="sIcon" placeholder="เช่น ✏️"></div>
-            <div class="form-group"><label>ราคา (แต้ม)</label><input type="number" id="sPoints" value="50"></div>
-            <button class="btn" style="background: #ef6c00;" onclick="addShopItem()">➕ บันทึกของรางวัล</button>
-        </div>
-
-        <!-- หน้า 4: จัดการระดับชั้นและยศ -->
-        <div id="tabSettings" class="tab-content">
-            <h3 style="color:#00838f;">🏫 จัดการระดับชั้น</h3>
-            <div id="classContainer"></div>
-            <button onclick="addClassRow()" style="background:#0277bd; color:white; padding:8px 15px; border:none; border-radius:5px; margin:10px 0; cursor:pointer;">+ เพิ่มระดับชั้น</button>
-            <button class="btn" onclick="saveClasses()" style="margin-bottom:30px;">💾 บันทึกระดับชั้น</button>
-            <hr>
-            <h3 style="color:#00838f;">⭐ จัดการระดับยศ</h3>
-            <div id="rankContainer"></div>
-            <button onclick="addRankRow()" style="background:#0277bd; color:white; padding:8px 15px; border:none; border-radius:5px; margin:10px 0; cursor:pointer;">+ เพิ่มระดับยศ</button>
-            <button class="btn" onclick="saveRanks()">💾 บันทึกระบบยศ</button>
-        </div>
     </div>
 
-    <!-- 🌟 MODAL ป๊อปอัพแสดงสถิติรายบุคคล 🌟 -->
-    <div id="statsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalStudentName" style="color:#00838f; margin:0;">สถิติการใช้งาน</h2>
-                <button onclick="closeModal()" style="background:#e53935; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; font-weight:bold;">❌ ปิด</button>
-            </div>
-            <div style="display:flex; justify-content:space-between; background:#e0f7fa; padding:15px; border-radius:8px; margin-bottom:15px; font-weight:bold;">
-                <div>🏆 คะแนนเลื่อนยศสะสม: <span id="modalPoints" style="color:#00838f;">0</span> แต้ม</div>
-                <div>💰 Coins ช็อปปิ้งปัจจุบัน: <span id="modalCoins" style="color:#ef6c00;">0</span> เหรียญ</div>
-            </div>
-            <h3>📋 ประวัติกิจกรรมของนักเรียนคนนี้ (Time Logs)</h3>
-            <div style="max-height: 300px; overflow-y: auto;">
-                <table style="font-size:14px;">
-                    <thead><tr><th>วัน-เวลา</th><th>กิจกรรม</th><th>รายละเอียด</th></tr></thead>
-                    <tbody id="modalLogTable"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    <div id="gameModal" class="modal"><div class="modal-content"><h2 id="gTitle" style="color: var(--primary); margin-top: 0;">ภารกิจ</h2><div id="gProgress" style="font-weight:bold; color:#777; margin-bottom:10px;"></div><div id="gText" class="reading-text"></div><button id="micBtn" class="mic-btn" onclick="toggleMic()">🎤 กดเริ่มฟัง (ครั้งเดียว)</button><div id="gStatus" style="font-size: 20px; margin: 15px 0; color: #555; min-height: 60px;">พร้อมแล้วกดปุ่มไมค์ได้เลย!</div><button class="btn btn-secondary" onclick="closeGame()" style="width: 100%; max-width: 300px;">❌ ปิดหน้าต่าง</button></div></div>
 
     <script>
-        // 🚨 วาง URL ของ Web App ตรงนี้ 🚨
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_Z_MPVLcwvfG7KOOKxNKAzGL71INWkY4D5ha4bbOwo8vUFJ35js11qOp-spBA8-ciOg/exec";
+        // ==========================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_AXPr47G1pKIcB09sX4F0EXyeZQmL_VVrYW0YhEYCHvPT9UuZLae0ZSfG8AS9PNtW1w/exec";
         
-        let allRanks = []; let allClasses = []; let globalUsers = []; let globalLogs = [];
+        const CHAR_MAP = {
+            "B1": "./images/boy1.png",
+            "B2": "./images/boy2.png",
+            "G1": "./images/girl1.png",
+            "G2": "./images/girl2.png"
+        };
+        const BASE_CHARACTERS = Object.values(CHAR_MAP);
 
-        window.onload = fetchData;
-        function switchTab(id, el) { document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.getElementById(id).classList.add('active'); el.classList.add('active'); }
+        let allQ = [], allS = [], allU = [], allR = [], allClasses = [], allSettings = [];
+        let curU = { id: "", name: "", avatar: BASE_CHARACTERS[0], avatarId: "B1", frame: "frame-none", points: 0, coins: 0, className: "", completedQuests: [], inventory: [], equipped: {pos:{char:null,bg:null,partner:null}}, activeBuff: "" };
+        let tempCreationAvatar = BASE_CHARACTERS[0]; let isWardrobeMoveMode = true; 
         
-        function adjustTextarea() {
-            const type = document.getElementById('qType').value;
-            document.querySelectorAll('.q-item-input').forEach(ta => {
-                if (type === 'word') ta.rows = 2; else if (type === 'sentence') ta.rows = 4; else if (type === 'story') ta.rows = 50;
+        window.onload = () => { renderCharacterOptions('creationAvatars'); loadData(); };
+
+        function renderCharacterOptions(containerId) {
+            const container = document.getElementById(containerId); container.innerHTML = "";
+            Object.keys(CHAR_MAP).forEach((key, index) => {
+                let charUrl = CHAR_MAP[key];
+                container.innerHTML += `<div class="select-item ${index===0?'selected':''}" onclick="selCreation('${charUrl}', this)"> <img src="${charUrl}"> </div>`;
             });
         }
 
-        async function fetchData() {
-            if(!SCRIPT_URL.includes("http")) return alert("กรุณาใส่ SCRIPT_URL ก่อนใช้งานครับ");
+        function getCharIdFromUrl(url) {
+            for(let key in CHAR_MAP) { if(CHAR_MAP[key] === url) return key; }
+            return "all";
+        }
+
+        async function loadData() {
+            sl("กำลังอัปเดตฐานข้อมูลระบบ...");
             try {
-                const data = await (await fetch(SCRIPT_URL)).json();
-                globalUsers = data.users || [];
-                globalLogs = data.logs || [];
-                
-                // 1. ตารางคิวแลกรางวัล
-                let redeemHTML = "<tr><th>วันที่</th><th>นักเรียน</th><th>ของที่ขอแลก</th><th>สถานะ</th><th>จัดการ</th></tr>";
-                if(data.redemptions && data.redemptions.length > 0) {
-                    data.redemptions.reverse().forEach(r => {
-                        let isDone = r.Status === "รับของแล้ว";
-                        let statusBadge = isDone ? `<span class="badge-done">รับแล้ว</span>` : `<span class="badge-pending">รอดำเนินการ</span>`;
-                        let actionBtn = isDone ? `<span style="color:#aaa;">เสร็จสิ้น</span>` : `<button onclick="approveRedeem('${r.RedeemID}')" style="background:#4caf50; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">✔ รับของแล้ว</button>`;
-                        redeemHTML += `<tr><td>${r.Date.split(' ')[0]}</td><td>${r.Name}<br><small>(${r.UserID})</small></td><td><b>${r.ItemName}</b></td><td>${statusBadge}</td><td>${actionBtn}</td></tr>`;
-                    });
-                } else redeemHTML += "<tr><td colspan='5'>ยังไม่มีคิวขอแลกของรางวัล</td></tr>";
-                document.getElementById('redeemTable').innerHTML = redeemHTML;
-
-                // 2. 🌟 ตารางรายชื่อนักเรียนภาพรวม (แสดง Points และ Coins)
-                let userHTML = "";
-                if(globalUsers.length > 0) {
-                    globalUsers.reverse().forEach(u => {
-                        // เช็คยอดเหรียญ หากเป็นข้อมูลเก่าที่ยังไม่มีคอลัมน์ Coins ให้ดึงแต้มเดิมมาโชว์แทนก่อนเพื่อป้องกันช่องว่าง
-                        let coinsAmt = (u.Coins !== "" && u.Coins !== undefined) ? u.Coins : (u.TotalPoints || 0);
-                        userHTML += `<tr>
-                            <td>${u.UserID}</td>
-                            <td><span style="background:#b2dfdb; padding:3px 8px; border-radius:5px; font-size:13px;">${u.ClassName||'-'}</span></td>
-                            <td style="text-align:left;">${u.Avatar} ${u.DisplayName}</td>
-                            <td><b style="color:#00838f; font-size:18px;">${u.TotalPoints}</b> แต้ม</td>
-                            <td><b style="color:#ef6c00; font-size:18px;">${coinsAmt}</b> เหรียญ</td>
-                            <td><button onclick="showStudentStats('${u.UserID}')" style="background:#0277bd; color:white; border:none; padding:5px 12px; border-radius:5px; cursor:pointer; font-weight:bold;">🔍 ดูสถิติ</button></td>
-                        </tr>`;
-                    });
-                } else userHTML = "<tr><td colspan='6'>ยังไม่มีนักเรียนลงทะเบียนเข้าเล่นเกม</td></tr>";
-                document.getElementById('userTable').innerHTML = userHTML;
-                
-                const folderSet = data.settings.find(s => s.SettingKey === "FolderID");
-                if(folderSet) document.getElementById('driveFolderId').value = folderSet.SettingValue;
-                
-                allRanks = data.ranks || []; renderRanks();
-                allClasses = data.classes || []; renderClasses(); buildClassCheckboxes();
-            } catch(e){}
+                const res = await (await fetch(SCRIPT_URL)).json();
+                allQ = res.quests||[]; allS = res.shop||[]; allU = res.users||[]; allR = res.ranks||[]; allClasses = res.classes||[]; allSettings = res.settings||[];
+                let classOptions = `<option value="">-- เลือกระดับชั้น --</option>`;
+                allClasses.forEach(c => { classOptions += `<option value="${c.ClassName}">${c.ClassName}</option>`; });
+                document.getElementById('loginClass').innerHTML = classOptions;
+                hl(); if(curU.id !== "") refreshUI(); 
+            } catch(e) { hl(); }
         }
+        async function refreshData() { await loadData(); }
 
-        // 🌟 ฟังก์ชันดึงและเปิดกล่องป๊อปอัพสถิติรายคน 🌟
-        function showStudentStats(userId) {
-            const student = globalUsers.find(u => String(u.UserID) === String(userId));
-            if(!student) return;
+        function login() {
+            const id = document.getElementById('loginId').value.trim(); const selClass = document.getElementById('loginClass').value;
+            if(!id) return alert("กรุณาใส่รหัสนักเรียนครับ");
+            const u = allU.find(x => String(x.UserID).trim().toLowerCase() === id.toLowerCase());
             
-            document.getElementById('modalStudentName').innerText = `📊 สถิติเจาะลึก: ${student.Avatar} ${student.DisplayName} (${student.ClassName || 'ไม่ระบุชั้น'})`;
-            document.getElementById('modalPoints').innerText = student.TotalPoints;
-            document.getElementById('modalCoins').innerText = (student.Coins !== "" && student.Coins !== undefined) ? student.Coins : (student.TotalPoints || 0);
-            
-            // กรอง Logs ดึงเฉพาะของเด็กคนนี้
-            const studentLogs = globalLogs.filter(l => String(l.UserID) === String(userId));
-            let logHTML = "";
-            if(studentLogs.length > 0) {
-                studentLogs.reverse().forEach(l => {
-                    logHTML += `<tr><td>${l.Date}</td><td><b style="color:#0277bd;">${l.Action}</b></td><td style="text-align:left;">${l.Detail}</td></tr>`;
-                });
-            } else {
-                logHTML = "<tr><td colspan='3'>ยังไม่มีประวัติการทำกิจกรรมบันทึกไว้</td></tr>";
+            if(u) {
+                let finalClass = u.ClassName || selClass;
+                let eq = {}; try { eq = u.Equipped ? JSON.parse(u.Equipped) : {}; } catch(e){}
+                curU = { 
+                    id: u.UserID, 
+                    name: u.DisplayName||"น้อง"+u.UserID, 
+                    avatar: u.Avatar||BASE_CHARACTERS[0], 
+                    avatarId: getCharIdFromUrl(u.Avatar||BASE_CHARACTERS[0]), 
+                    frame: u.Frame||"frame-none", 
+                    points: Number(u.TotalPoints)||0, 
+                    coins: (u.Coins !== "" && u.Coins !== undefined) ? Number(u.Coins) : (Number(u.TotalPoints)||0), 
+                    className: finalClass, 
+                    completedQuests: u.CompletedQuests ? String(u.CompletedQuests).split(',').map(s=>s.trim()).filter(s=>s!=="") : [], 
+                    inventory: u.Inventory ? String(u.Inventory).split(',').map(s=>s.trim()).filter(s=>s!=="") : [], 
+                    equipped: eq, 
+                    activeBuff: u.ActiveBuff || "" 
+                };
+                if(!curU.equipped.pos) curU.equipped.pos = { char: null, bg: null, partner: null };
+                document.getElementById('loginPage').classList.remove('active'); document.getElementById('mainPage').classList.add('active');
+                refreshUI(); syncDB("เข้าสู่ระบบ", "-");
+            } else { 
+                if(!selClass) return alert("คุณเป็นผู้เล่นใหม่! กรุณาเลือกระดับชั้นก่อนครับ");
+                curU.id = id; curU.className = selClass;
+                document.getElementById('loginPage').classList.remove('active'); document.getElementById('creationPage').classList.add('active');
+                buildAvatarHTML('avatarPreview', true);
             }
-            document.getElementById('modalLogTable').innerHTML = logHTML;
-            document.getElementById('statsModal').style.display = "flex";
         }
 
-        function closeModal() { document.getElementById('statsModal').style.display = "none"; }
-
-        async function sendAPI(payload, cb) {
-            document.getElementById('loading').style.display = "block";
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-            document.getElementById('loading').style.display = "none";
-            cb();
+        function selCreation(avatarVal, el) {
+            tempCreationAvatar = avatarVal; buildAvatarHTML('avatarPreview', true);
+            const container = document.getElementById('creationAvatars');
+            Array.from(container.children).forEach(c => c.classList.remove('selected')); el.classList.add('selected');
         }
 
-        function approveRedeem(id) { if(confirm("ยืนยันการให้ของรางวัลชิ้นนี้?")) sendAPI({ action: "updateRedeem", redeemId: id, status: "รับของแล้ว" }, () => { fetchData(); }); }
-        function toggleQuestSet() {
-            const isSet = document.getElementById('qIsSet').value === "true"; document.getElementById('addMoreBtn').style.display = isSet ? "block" : "none";
-            if(!isSet) document.getElementById('qSetContainer').innerHTML = `<div class="quest-item"><textarea class="q-item-input" rows="${document.getElementById('qType').value === 'story'?50:2}" placeholder="พิมพ์ข้อความ"></textarea></div>`;
+        async function saveNewUser() {
+            let typedName = document.getElementById('newUserName').value.trim();
+            if(!typedName) return alert("กรุณาตั้งชื่อเล่นของคุณก่อนเข้าเกมส์ครับ");
+            curU.name = typedName; curU.avatar = tempCreationAvatar; curU.avatarId = getCharIdFromUrl(tempCreationAvatar); curU.frame = "frame-none";
+            document.getElementById('creationPage').classList.remove('active'); document.getElementById('mainPage').classList.add('active');
+            refreshUI(); await syncDB("สร้างตัวละครใหม่", "ยินดีต้อนรับ!");
         }
-        function addQuestBox() { document.getElementById('qSetContainer').insertAdjacentHTML('beforeend', `<div class="quest-item"><textarea class="q-item-input" rows="${document.getElementById('qType').value === 'story'?50:2}" placeholder="พิมพ์ข้อความ"></textarea><button onclick="this.parentElement.remove()">❌</button></div>`); }
-        function addQuest() {
-            const inputs = document.querySelectorAll('.q-item-input'); const contents = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== "");
-            const checkboxes = document.querySelectorAll('.quest-class-cb:checked'); let selectedClasses = Array.from(checkboxes).map(cb => cb.value).join(",");
-            if(!document.getElementById('qTitle').value || contents.length === 0) return alert("กรอกข้อมูลให้ครบ");
-            if(selectedClasses === "") return alert("กรุณาเลือกชั้นเรียนอย่างน้อย 1 ตัวเลือก");
-            sendAPI({ action: "addQuest", questId: "Q"+Date.now(), title: document.getElementById('qTitle').value, type: document.getElementById('qType').value, content: contents.join("|"), difficulty: document.getElementById('qDiff').value, points: document.getElementById('qPts').value, isSet: document.getElementById('qIsSet').value, assignedClasses: selectedClasses }, () => { alert("บันทึกสำเร็จ"); });
+
+        function getLevelDetails(totalPoints) {
+            const bSetting = allSettings.find(s=>s.SettingKey==='LevelBaseExp'); const sSetting = allSettings.find(s=>s.SettingKey==='LevelIncrement'); const bnSetting = allSettings.find(s=>s.SettingKey==='Level5Bonus');
+            let baseExp = bSetting ? Number(bSetting.SettingValue) : 100; let increment = sSetting ? Number(sSetting.SettingValue) : 30; let level5Bonus = bnSetting ? Number(bnSetting.SettingValue) : 20;
+            let level = 1; let pointsLeft = totalPoints; let currentReq = baseExp;
+            while (true) {
+                let step = increment; if (level % 5 === 0) { step += level5Bonus; }
+                if (pointsLeft >= currentReq) { pointsLeft -= currentReq; level++; currentReq += step; } else { break; }
+            }
+            return { level: level, currentExp: pointsLeft, maxExp: currentReq };
         }
-        function resizeImage(file, callback) {
-            const reader = new FileReader(); reader.onload = function(e) {
-                const img = new Image(); img.onload = function() {
-                    const canvas = document.createElement('canvas'); const MAX_SIZE = 800; let w = img.width; let h = img.height;
-                    if(w > h && w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } else if(h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; }
-                    canvas.width = w; canvas.height = h; canvas.getContext('2d').drawImage(img, 0, 0, w, h); callback(canvas.toDataURL('image/jpeg', 0.8).split(',')[1]); 
-                }; img.src = e.target.result;
-            }; reader.readAsDataURL(file);
+
+        function getProfilePicPath(fullPath) {
+            let isImg = fullPath.startsWith('http') || fullPath.startsWith('./') || fullPath.includes('.png');
+            if(isImg && fullPath.includes('/')) { let parts = fullPath.split('/'); let filename = parts.pop(); return parts.join('/') + '/Profile_' + filename; }
+            return fullPath; 
         }
-        function addShopItem() {
-            const name = document.getElementById('sName').value; const fid = document.getElementById('driveFolderId').value; const file = document.getElementById('sImage').files[0];
-            if(!name) return alert("ใส่ชื่อรางวัลด้วยครับ");
-            let payload = { action: "addShopItem", itemId: "S"+Date.now(), name: name, points: document.getElementById('sPoints').value, icon: document.getElementById('sIcon').value||"🎁", folderId: fid };
-            if (file) {
-                if(!fid) return alert("กรุณาใส่รหัส Folder ID"); document.getElementById('loading').style.display = "block";
-                resizeImage(file, (base64) => { payload.imageFile = { filename: file.name, mimeType: 'image/jpeg', data: base64 }; sendAPI(payload, () => { alert("อัปโหลดและบันทึกสำเร็จ"); fetchData(); }); });
-            } else { sendAPI(payload, () => { alert("บันทึกสำเร็จ"); }); }
+
+        function buildAvatarHTML(containerId, isCreation = false) {
+            let container = document.getElementById(containerId); let html = "";
+            let charAvatar = isCreation ? tempCreationAvatar : curU.avatar;
+            let isImg = charAvatar.startsWith('http') || charAvatar.startsWith('./') || charAvatar.includes('.png');
+
+            if(containerId === 'headerAvatarContainer') {
+                if(isImg) { container.innerHTML = `<img src="${getProfilePicPath(charAvatar)}" onerror="this.style.display='none'">`; }
+                else { container.innerHTML = `<div style="font-size: 50px;">${charAvatar}</div>`; }
+                container.className = `avatar-header ${curU.frame}`; return;
+            }
+
+            if(isCreation) {
+                if(isImg) { container.innerHTML = `<img src="${charAvatar}" class="breathe-anim" style="width:100%; height:100%; object-fit:contain; position:absolute; bottom:0;" onerror="this.style.display='none'">`; }
+                else { container.innerHTML = `<div class="breathe-anim" style="position:absolute; bottom:10px; font-size:120px; display:flex; justify-content:center; width:100%;">${charAvatar}</div>`; }
+                return;
+            }
+
+            let isWardrobe = (containerId === 'wardrobeAvatarContainer');
+            let charTop = "5%", charLeft = "calc(50% - 125px)", bgTop = "0px", bgLeft = "0px", pTop = "5%", pLeft = "calc(25% - 125px)";
+            
+            if(curU.equipped && curU.equipped.pos) {
+                if(curU.equipped.pos.char && curU.equipped.pos.char.top) { charTop = curU.equipped.pos.char.top; charLeft = curU.equipped.pos.char.left; }
+                if(curU.equipped.pos.bg && curU.equipped.pos.bg.top) { bgTop = curU.equipped.pos.bg.top; bgLeft = curU.equipped.pos.bg.left; }
+                if(curU.equipped.pos.partner && curU.equipped.pos.partner.top) { pTop = curU.equipped.pos.partner.top; pLeft = curU.equipped.pos.partner.left; }
+            }
+            if(isWardrobe && !isWardrobeMoveMode) { charTop = "5%"; charLeft = "calc(50% - 125px)"; bgTop = "0px"; bgLeft = "0px"; pTop = "5%"; pLeft = "calc(25% - 125px)"; }
+
+            // 🌟 วาด Background และซ่อนรูปรั่วด้วย onerror
+            if(curU.equipped['bg']) {
+                const bgItem = allS.find(s => String(s.ItemID) === String(curU.equipped['bg']));
+                if(bgItem && (bgItem.LayerImage || bgItem.Icon)) {
+                    let bgSrc = bgItem.LayerImage || bgItem.Icon;
+                    if(bgSrc.trim() !== "" && (bgSrc.startsWith('http') || bgSrc.startsWith('./') || bgSrc.includes('.png'))) {
+                        let dragClass = (isWardrobe && isWardrobeMoveMode) ? 'draggable decor-item' : 'decor-item';
+                        html += `<div class="${dragClass}" id="drag-bg" style="top:${bgTop}; left:${bgLeft};"><img src="${bgSrc}" class="layer-img" style="width:100%; height:100%; object-fit:contain;" onerror="this.style.display='none'"></div>`;
+                    }
+                }
+            }
+            
+            let animClass = isWardrobeMoveMode ? '' : 'breathe-anim'; 
+            
+            // 🌟 วาด Partner
+            if(curU.equipped['partner']) {
+                const partnerItem = allS.find(s => String(s.ItemID) === String(curU.equipped['partner']));
+                if(partnerItem && (partnerItem.LayerImage || partnerItem.Icon)) {
+                    let pSrc = partnerItem.LayerImage || partnerItem.Icon;
+                    if(pSrc.trim() !== "" && (pSrc.startsWith('http') || pSrc.startsWith('./') || pSrc.includes('.png'))) {
+                        let pDragClass = (isWardrobe && isWardrobeMoveMode) ? 'draggable partner-group' : 'partner-group';
+                        html += `<div class="${pDragClass}" id="drag-partner" style="top:${pTop}; left:${pLeft};"><img src="${pSrc}" class="base-avatar-img ${animClass}" onerror="this.style.display='none'"></div>`;
+                    }
+                }
+            }
+
+            // 🌟 วาด ร่างหลัก
+            let charDragClass = (isWardrobe && isWardrobeMoveMode) ? 'draggable char-group' : 'char-group';
+            html += `<div class="${charDragClass}" id="drag-char" style="top:${charTop}; left:${charLeft}; z-index:2;">`;
+            if(isImg) { html += `<img src="${charAvatar}" class="base-avatar-img ${animClass}" onerror="this.style.display='none'">`; } 
+            else { html += `<div class="${animClass}" style="position:absolute; bottom:10px; font-size:120px; display:flex; justify-content:center; width:100%;">${charAvatar}</div>`; }
+
+            const layerOrder = ['shoes', 'body_dress', 'body_pants', 'body_shirt', 'face', 'head', 'handheld']; let zIndex = 3;
+            layerOrder.forEach(layer => {
+                if(curU.equipped[layer]) {
+                    const itemData = allS.find(s => String(s.ItemID) === String(curU.equipped[layer]));
+                    if(itemData) {
+                        let srcFile = itemData.LayerImage || itemData.Icon;
+                        if(srcFile && srcFile.trim() !== "" && (srcFile.startsWith('http') || srcFile.startsWith('./') || srcFile.includes('.png'))) { 
+                            html += `<img src="${srcFile}" class="layer-img ${animClass}" style="z-index:${zIndex};" onerror="this.style.display='none'">`; 
+                        } else if(srcFile && srcFile.trim() !== "") {
+                            let posStyle = layer === 'head' ? 'top:5%;' : layer === 'face' ? 'top:25%;' : 'bottom:25%;';
+                            html += `<div class="emoji-layer ${animClass}" style="z-index:${zIndex}; ${posStyle}">${itemData.Icon}</div>`;
+                        }
+                    }
+                }
+                zIndex++;
+            });
+            html += `</div>`; container.innerHTML = html;
+            if(isWardrobe && isWardrobeMoveMode) { document.querySelectorAll('.draggable').forEach(el => makeDraggable(el, container)); }
         }
-        function renderClasses() { document.getElementById('classContainer').innerHTML = allClasses.map((c, i) => `<div style="display:flex; gap:10px; margin-bottom:10px; background:#f5f5f5; padding:10px; border-radius:5px;"><input type="text" value="${c.ClassName}" class="c-name" style="flex:1"><button onclick="this.parentElement.remove()" style="background:#e53935; color:white; border:none; padding:5px 10px; cursor:pointer;">ลบ</button></div>`).join(''); }
-        function addClassRow() { allClasses.push({ClassName:""}); renderClasses(); }
-        function saveClasses() { const names = document.querySelectorAll('.c-name'); let newClasses = []; for(let i=0; i<names.length; i++) { if(names[i].value.trim()) newClasses.push(names[i].value.trim()); } sendAPI({ action: "saveClasses", classes: newClasses }, () => { alert("บันทึกระดับชั้นสำเร็จ!"); fetchData(); }); }
-        function buildClassCheckboxes() { let html = `<label><input type="checkbox" value="all" class="quest-class-cb"> เล่นได้ทุกระดับชั้น</label>`; allClasses.forEach(c => { html += `<label><input type="checkbox" value="${c.ClassName}" class="quest-class-cb"> ${c.ClassName}</label>`; }); document.getElementById('qClassSelect').innerHTML = html; }
-        function renderRanks() { document.getElementById('rankContainer').innerHTML = allRanks.map((r, i) => `<div style="display:flex; gap:10px; margin-bottom:10px; background:#f5f5f5; padding:10px; border-radius:5px;"><input type="text" value="${r.RankName}" class="r-name" style="flex:2"><input type="number" value="${r.MinPoints}" class="r-pts" style="flex:1"><button onclick="this.parentElement.remove()" style="background:#e53935; color:white; border:none; padding:5px 10px; cursor:pointer;">ลบ</button></div>`).join(''); }
-        function addRankRow() { allRanks.push({RankName:"", MinPoints:0}); renderRanks(); }
-        function saveRanks() { const names = document.querySelectorAll('.r-name'); const pts = document.querySelectorAll('.r-pts'); let newRanks = []; for(let i=0; i<names.length; i++) { if(names[i].value) newRanks.push({name: names[i].value, points: Number(pts[i].value)}); } newRanks.sort((a,b) => a.points - b.points); sendAPI({ action: "saveRank", ranks: newRanks }, () => { alert("บันทึกระบบยศสำเร็จ!"); fetchData(); }); }
+
+        function setWardrobeMode(mode) {
+            isWardrobeMoveMode = (mode === 'move');
+            let wardContainer = document.getElementById('wardrobeAvatarContainer');
+            if(isWardrobeMoveMode) {
+                document.getElementById('btnMoveMode').className = "btn btn-primary"; document.getElementById('btnEditMode').className = "btn"; document.getElementById('btnEditMode').style = "background:#e0e0e0; color:#333;";
+                document.getElementById('inventorySection').style.display = 'none'; document.getElementById('savePosSection').style.display = 'block'; 
+                wardContainer.classList.remove('edit-mode');
+            } else {
+                document.getElementById('btnEditMode').className = "btn btn-primary"; document.getElementById('btnMoveMode').className = "btn"; document.getElementById('btnMoveMode').style = "background:#e0e0e0; color:#333;";
+                document.getElementById('inventorySection').style.display = 'block'; document.getElementById('savePosSection').style.display = 'none'; 
+                wardContainer.classList.add('edit-mode');
+            }
+            buildAvatarHTML('wardrobeAvatarContainer');
+        }
+
+        function savePositions() {
+            let charEl = document.getElementById('drag-char'); let bgEl = document.getElementById('drag-bg'); let partnerEl = document.getElementById('drag-partner');
+            if(!curU.equipped) curU.equipped = {}; if(!curU.equipped.pos) curU.equipped.pos = {};
+            curU.equipped.pos.char = charEl ? { top: charEl.style.top, left: charEl.style.left } : null;
+            curU.equipped.pos.bg = bgEl ? { top: bgEl.style.top, left: bgEl.style.left } : null;
+            curU.equipped.pos.partner = partnerEl ? { top: partnerEl.style.top, left: partnerEl.style.left } : null;
+            syncDB("บันทึกตำแหน่งจัดฉาก", "อัปเดตพิกัดเรียบร้อย"); alert("💾 บันทึกตำแหน่งฉากสำเร็จ!");
+        }
+
+        function makeDraggable(elmnt, container) {
+            var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            elmnt.onmousedown = dragMouseDown; elmnt.ontouchstart = dragTouchStart;
+            function dragMouseDown(e) { e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDrag; document.onmousemove = elementDrag; }
+            function dragTouchStart(e) { pos3 = e.touches[0].clientX; pos4 = e.touches[0].clientY; document.ontouchend = closeDrag; document.ontouchmove = elementTouchDrag; }
+            function elementDrag(e) { e.preventDefault(); calcPos(e.clientX, e.clientY); }
+            function elementTouchDrag(e) { calcPos(e.touches[0].clientX, e.touches[0].clientY); }
+            function calcPos(clientX, clientY) {
+                pos1 = pos3 - clientX; pos2 = pos4 - clientY; pos3 = clientX; pos4 = clientY;
+                let newTop = elmnt.offsetTop - pos2; let newLeft = elmnt.offsetLeft - pos1;
+                let minTop = -elmnt.offsetHeight + 50; let maxTop = container.offsetHeight - 50;
+                let minLeft = -elmnt.offsetWidth + 50; let maxLeft = container.offsetWidth - 50;
+                if (newTop < minTop) newTop = minTop; if (newTop > maxTop) newTop = maxTop;
+                if (newLeft < minLeft) newLeft = minLeft; if (newLeft > maxLeft) newLeft = maxLeft;
+                elmnt.style.top = newTop + "px"; elmnt.style.left = newLeft + "px";
+            }
+            function closeDrag() { document.onmouseup = null; document.onmousemove = null; document.ontouchend = null; document.ontouchmove = null; }
+        }
+
+        function filterShop(type, btnEl) {
+            document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active')); if(btnEl) btnEl.classList.add('active');
+            const shopGrid = document.getElementById('shopGridBox'); shopGrid.innerHTML = "";
+            let newestItems = [...allS].filter(s => s.ItemID.startsWith('S')).sort((a,b) => b.ItemID.localeCompare(a.ItemID)).slice(0, 5).map(s => s.ItemID);
+
+            allS.forEach(s => {
+                let comp = String(s.CompatibleChars || "all").trim().toUpperCase(); 
+                if(comp !== "ALL" && comp !== "" && !comp.includes(curU.avatarId)) return;
+                
+                if(type === 'costume' && (s.ItemType !== 'costume' && s.ItemType !== 'avatar' && s.ItemType !== 'rename')) return;
+                if(type === 'buff' && !s.ItemType.startsWith('buff')) return;
+                if(type === 'real' && s.ItemType !== 'real') return;
+                if(type !== 'all' && type !== 'costume' && type !== 'buff' && type !== 'real' && s.ItemType !== type) return;
+                
+                let isOwned = curU.inventory.includes(String(s.ItemID)); let btnHtml = "";
+                let newBadgeHtml = newestItems.includes(s.ItemID) ? `<div class="new-badge">🆕 NEW</div>` : "";
+                
+                if(isOwned && (s.ItemType === 'costume' || s.ItemType === 'avatar')) { btnHtml = `<button class="btn btn-disabled" style="width:100%;">มีชิ้นนี้แล้ว</button>`; } 
+                else { btnHtml = `<button class="btn btn-secondary" style="width:100%;" onclick="buy('${s.ItemID}',${s.PointsRequired},'${s.ItemName}','${s.ItemType}')">ซื้อ (${s.PointsRequired} เหรียญ)</button>`; }
+                
+                let imgHtml = s.Icon.startsWith("http") || s.Icon.startsWith("./") || s.Icon.includes(".png") 
+                    ? `<img src="${s.Icon}" style="width:80px;height:80px;object-fit:contain;margin:10px;" onerror="this.style.display='none'">` 
+                    : `<div style="font-size:60px;margin:10px;">${s.Icon}</div>`;
+                
+                shopGrid.innerHTML += `<div class="card">${newBadgeHtml}${imgHtml}<h3 style="margin-bottom:15px; font-size:16px;">${s.ItemName}</h3>${btnHtml}</div>`;
+            });
+        }
+
+        function refreshUI() {
+            if (!curU.id) return; 
+            
+            document.getElementById('headerName').innerText = curU.name + (curU.className ? ` (${curU.className})` : ""); 
+            document.getElementById('headerPoints').innerText = curU.points; document.getElementById('headerCoins').innerText = curU.coins; 
+            
+            const lvlDetails = getLevelDetails(curU.points);
+            document.getElementById('headerLvlNum').innerText = `Lv.${lvlDetails.level}`;
+            document.getElementById('headerExpText').innerText = `${lvlDetails.currentExp} / ${lvlDetails.maxExp}`;
+            let pct = (lvlDetails.currentExp / lvlDetails.maxExp) * 100;
+            document.getElementById('headerExpFill').style.width = pct + "%";
+            
+            if(allR.length > 0) {
+                let rName = allR[0].RankName; let rIcon = allR[0].RankIcon || "⭐";
+                allR.forEach(r => { if(curU.points >= Number(r.MinPoints)) { rName = r.RankName; rIcon = r.RankIcon; } });
+                let rIconStr = String(rIcon);
+                let rIconHtml = rIconStr.startsWith("http") || rIconStr.startsWith("./") || rIconStr.includes('.png') 
+                    ? `<img src="${rIconStr}" style="width:16px; height:16px; vertical-align:middle;" onerror="this.style.display='none'">` 
+                    : rIconStr;
+                document.getElementById('headerRankName').innerHTML = `${rIconHtml} ${rName}`;
+            }
+
+            let buffHtml = ""; let currentBuffs = String(curU.activeBuff || "");
+            if(currentBuffs.includes('buff_exp')) buffHtml += `<div style="background:#ff3d00; color:white; font-size:12px; padding:3px 10px; border-radius:10px; margin-top:5px; text-align:center; animation:pulseMic 1s infinite;">🔥 EXP x2 ทำงานอยู่!</div>`;
+            if(currentBuffs.includes('buff_coins')) buffHtml += `<div style="background:#ffb300; color:white; font-size:12px; padding:3px 10px; border-radius:10px; margin-top:5px; text-align:center; animation:pulseMic 1s infinite;">💰 Coins x2 ทำงานอยู่!</div>`;
+            if(currentBuffs.includes('double_exp') || currentBuffs.includes('buff') && !currentBuffs.includes('_')) buffHtml += `<div style="background:#ff3d00; color:white; font-size:12px; padding:3px 10px; border-radius:10px; margin-top:5px; text-align:center; animation:pulseMic 1s infinite;">🔥 ALL x2 ทำงานอยู่!</div>`;
+            document.getElementById('buffIndicator').innerHTML = buffHtml;
+
+            buildAvatarHTML('headerAvatarContainer'); buildAvatarHTML('wardrobeAvatarContainer');
+            
+            // 🌟 แก้บักเควสหาย: กรองค่าที่พัง/ว่างออกไปก่อนเช็ค
+            const qb = document.getElementById('qBox');
+            if (qb) {
+                qb.innerHTML = "";
+                let completedIds = curU.completedQuests.map(id => String(id).trim()).filter(id => id !== "");
+                let availQ = allQ.filter(q => q.QuestID && !completedIds.includes(String(q.QuestID).trim()));
+                
+                let filteredQ = availQ.filter(q => { 
+                    let assigned = String(q.AssignedClasses || "").trim().toLowerCase(); 
+                    if (assigned === "" || assigned === "all" || assigned === "undefined") return true;
+                    if (curU.className && assigned.includes(String(curU.className).trim().toLowerCase())) return true;
+                    return false;
+                });
+                
+                if(filteredQ.length === 0) {
+                    qb.innerHTML = "<p style='grid-column: 1 / -1; text-align:center; color:#777; margin-top:30px;'>🎉 ยังไม่มีภารกิจใหม่ในขณะนี้ หรือนักเรียนทำครบหมดแล้วครับ!</p>";
+                } else {
+                    filteredQ.forEach(q => {
+                        qb.innerHTML += `<div class="card"><div style="position:absolute;top:10px;right:-25px;background:#4caf50;color:white;padding:5px 30px;transform:rotate(45deg);font-size:12px;">+${q.RewardPoints} เหรียญ</div>
+                        <h3 style="color:var(--primary); margin-top:5px;">${q.Title}</h3><div style="color:#ff9800; margin:10px;">ความยาก: ${q.Difficulty}</div>
+                        <button class="btn btn-primary" style="width:100%;" onclick="openGame('${q.QuestID}')">รับภารกิจ</button></div>`;
+                    });
+                }
+            }
+
+            filterShop('all', document.querySelector('.shop-tab'));
+
+            const invBox = document.getElementById('inventoryBox');
+            if (invBox) {
+                invBox.innerHTML = "";
+                curU.inventory.forEach(itemId => {
+                    const itemData = allS.find(s => String(s.ItemID) === String(itemId));
+                    if(itemData && (itemData.ItemType === 'costume' || itemData.ItemType === 'avatar')) { 
+                        let isEquipped = (curU.equipped[itemData.Layer] === itemId || curU.equipped['partner'] === itemId) ? "equipped" : "";
+                        let imgHtml = itemData.Icon.startsWith("http") || itemData.Icon.startsWith("./") || itemData.Icon.includes(".png")
+                            ? `<img src="${itemData.Icon}" style="width:60px;height:60px;object-fit:contain;" onerror="this.style.display='none'">`
+                            : `<div style="font-size:40px;">${itemData.Icon}</div>`;
+                            
+                        invBox.innerHTML += `<div class="inv-card ${isEquipped}" onclick="toggleEquip('${itemId}', '${itemData.Layer}', '${itemData.ItemType}')">${imgHtml}<div style="font-size:12px; margin-top:5px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${itemData.ItemName}</div></div>`;
+                    }
+                });
+            }
+        }
+
+        async function claimCouponCode() {
+            let code = document.getElementById('couponInputCode').value.trim();
+            if(!code) return alert("กรุณาพิมพ์รหัสโค้ดคูปองก่อนกดปุ่มตรวจสอบครับ");
+            sl("กำลังส่งโค้ดไปตรวจสอบหลังบ้าน...");
+            try {
+                let res = await (await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "claimCoupon", userId: curU.id, code: code }) })).json();
+                hl();
+                if(res.status === "success") { alert(`🎉 ยินดีด้วยครับ! โค้ดถูกต้อง ได้รับรางวัลเพิ่มจำนวน +${res.reward} เหรียญช็อปปิ้ง (Coins) เรียบร้อยแล้วครับ!`); document.getElementById('couponInputCode').value = ""; await loadData(); } else { alert(res.message); }
+            } catch(e) { hl(); alert("ระบบเชื่อมต่อขัดข้อง กรุณาลองใหม่อีกครั้ง"); }
+        }
+
+        function toggleEquip(itemId, layer, itemType) { 
+            if(itemType === 'avatar') {
+                let choice = confirm("คุณต้องการใช้งานตัวละครนี้อย่างไร?\n\nกด [OK/ตกลง] = เปลี่ยนเป็นร่างหลักของฉัน\nกด [Cancel/ยกเลิก] = วางตั้งโชว์เป็นตัวละครคู่หูในฉาก");
+                if (choice) {
+                    const avatarItem = allS.find(s => String(s.ItemID) === String(itemId));
+                    curU.avatar = avatarItem.LayerImage || avatarItem.Icon; 
+                    curU.avatarId = getCharIdFromUrl(curU.avatar);
+                    alert("✨ เปลี่ยนร่างหลักสำเร็จ!");
+                    refreshUI(); syncDB("เปลี่ยนร่างหลัก", "-"); return;
+                } else { layer = 'partner'; }
+            }
+            if (curU.equipped[layer] === itemId) { delete curU.equipped[layer]; } else { curU.equipped[layer] = itemId; } 
+            refreshUI(); syncDB("เปลี่ยนชุด/จัดฉาก", "-"); 
+        }
+
+        async function syncDB(act="", det="") { let pay = { action: "saveUser", id: curU.id, name: curU.name, avatar: curU.avatar, frame: curU.frame, points: curU.points, coins: curU.coins, className: curU.className, completedQuests: curU.completedQuests, inventory: curU.inventory, equipped: curU.equipped, activeBuff: curU.activeBuff }; if(act) pay.logData = { action: act, detail: det }; try { await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type':'application/json'}, body: JSON.stringify(pay) }); } catch(e){} }
+        
+        async function buy(id, cost, name, itemType) {
+            if(curU.coins >= cost) { 
+                if(itemType.startsWith('buff')) {
+                    let currentBuffs = String(curU.activeBuff || "");
+                    if(currentBuffs.includes(itemType)) return alert("❌ คุณมีบัฟชนิดนี้เปิดใช้งานอยู่แล้วครับ ไปทำภารกิจก่อนนะ!");
+                    if(confirm(`ใช้ ${cost} Coins ซื้อ ${name}?`)) { 
+                        curU.coins -= cost; curU.activeBuff = currentBuffs ? currentBuffs + "," + itemType : itemType;
+                        refreshUI(); await syncDB("ซื้อไอเทมบัฟ", name); alert("🔥 ซื้อบัฟสำเร็จ! ภารกิจต่อไปจะได้โบนัสตัวคูณทันที"); 
+                    }
+                    return;
+                }
+                if(confirm(`ใช้ ${cost} Coins แลก ${name}?`)) { 
+                    curU.coins -= cost; 
+                    if (itemType === 'costume' || itemType === 'avatar') { curU.inventory.push(id); refreshUI(); await syncDB("ซื้อสินค้า", name); alert("✅ ซื้อสำเร็จ! เข้าไปสวมใส่ได้ที่ตู้เสื้อผ้าเลยครับ");
+                    } else if (itemType === 'rename') {
+                        let newName = prompt("กรุณาพิมพ์ชื่อตัวละครใหม่:"); if(newName) { curU.name = newName.trim(); refreshUI(); await syncDB("เปลี่ยนชื่อ", newName); } else curU.coins += cost;
+                    }
+                } 
+            } else alert("เหรียญช็อปปิ้งไม่พอจ้า!"); 
+        }
+        
+        function switchTab(id) { document.querySelectorAll('.tab-content').forEach(t=>t.style.display='none'); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.getElementById(id).style.display='block'; event.currentTarget.classList.add('active'); if(id === 'wTab') setWardrobeMode('move'); }
+        function sl(txt) { document.getElementById('loadTxt').innerText=txt; document.getElementById('loadingOverlay').style.display='flex'; }
+        function hl() { document.getElementById('loadingOverlay').style.display='none'; }
+        
+        let aQ = null, qSet = [], qIdx = 0, isRec = false, keepListening = false;
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition; const rec = SR ? new SR() : null;
+        if(rec) { rec.lang = 'th-TH'; rec.interimResults = false; rec.continuous = true; rec.onresult = function(e) { const lastResultIndex = e.results.length - 1; checkAns(e.results[lastResultIndex][0].transcript.trim()); }; rec.onend = function() { if(keepListening) { try { rec.start(); } catch(e){} } else { isRec = false; document.getElementById('micBtn').innerText="🎤 กดเริ่มฟัง"; } }; }
+        function openGame(id) { aQ = allQ.find(x => String(x.QuestID) === String(id)); qSet = String(aQ.Content).split('|').map(s=>s.trim()).filter(s=>s!==""); qIdx = 0; document.getElementById('gTitle').innerText = aQ.Title; updateQuestView(""); document.getElementById('gameModal').style.display = "flex"; keepListening = false; }
+        
+        function updateQuestView(spokenText = "") {
+            if(qSet.length > 1) document.getElementById('gProgress').innerText = `ข้อที่ ${qIdx+1} จาก ${qSet.length}`; else document.getElementById('gProgress').innerText = "";
+            let targetText = qSet[qIdx]; if(!spokenText) { document.getElementById('gText').innerHTML = `<span>${targetText}</span>`; return; }
+            let cleanTgt = targetText.replace(/\s/g, ''); let cleanSpk = spokenText.replace(/\s/g, ''); let matchedCount = 0;
+            for(let i = 1; i <= targetText.length; i++) { let sub = targetText.substring(0, i).replace(/\s/g, ''); if(cleanSpk.includes(sub)) { matchedCount = i; } else { break; } }
+            let greenPart = targetText.substring(0, matchedCount); let blackPart = targetText.substring(matchedCount);
+            document.getElementById('gText').innerHTML = `<span style="color: #4caf50;">${greenPart}</span><span style="color: #333;">${blackPart}</span>`;
+        }
+        function closeGame() { document.getElementById('gameModal').style.display = "none"; keepListening = false; if(isRec) rec.stop(); }
+        function toggleMic() { if(!rec) return alert("เบราว์เซอร์ไม่รองรับ"); if(isRec) { keepListening = false; rec.stop(); } else { keepListening = true; isRec = true; try { rec.start(); } catch(e){} document.getElementById('micBtn').innerText="🔴 ระบบกำลังฟังเสียง..."; } }
+        
+        function checkAns(spk) {
+            updateQuestView(spk); const tgt = qSet[qIdx]; const cSpk = spk.replace(/\s/g, ''); const cTgt = tgt.replace(/\s/g, '');
+            if(cSpk === cTgt || (aQ.Type === 'story' && cSpk.includes(cTgt.substring(0, Math.floor(cTgt.length/2))))) {
+                qIdx++;
+                if(qIdx >= qSet.length) {
+                    keepListening = false; rec.stop(); 
+                    let basePts = Number(aQ.RewardPoints); let expMult = 1, coinMult = 1;
+                    let currentBuffs = String(curU.activeBuff || "");
+                    if(currentBuffs.includes('buff_exp') || currentBuffs.includes('double_exp') || currentBuffs.includes('buff') && !currentBuffs.includes('_')) expMult = 2;
+                    if(currentBuffs.includes('buff_coins') || currentBuffs.includes('double_exp') || currentBuffs.includes('buff') && !currentBuffs.includes('_')) coinMult = 2;
+                    
+                    let ptsEarned = basePts * expMult; let coinsEarned = basePts * coinMult; curU.activeBuff = ""; 
+                    if(aQ.ItemRewardID) { curU.inventory.push(aQ.ItemRewardID); }
+                    document.getElementById('gStatus').innerHTML = `<span style="color:#4caf50; font-weight:bold;">🎉 เก่งมากอ่านถูกต้อง!<br>ได้รับ ${ptsEarned} Exp เลื่อนยศ และ ${coinsEarned} เหรียญช็อปปิ้ง</span>`;
+                    curU.points += ptsEarned; curU.coins += coinsEarned; curU.completedQuests.push(String(aQ.QuestID));
+                    refreshUI(); syncDB("ภารกิจสำเร็จ", aQ.Title); setTimeout(() => { closeGame(); }, 2500);
+                } else { document.getElementById('gStatus').innerHTML = `<span style="color:#2e7d32;">เก่งมาก! คำต่อไปเลยครับ</span>`; updateQuestView(""); }
+            } else { document.getElementById('gStatus').innerHTML = `<span style="color:#ef6c00; font-size:16px;">ระบบได้ยิน: <b>"${spk}"</b><br>ลองพยายามอ่านต่อคำที่เหลือนะ!</span>`; }
+        }
     </script>
 </body>
 </html>
