@@ -50,10 +50,37 @@
 
         <!-- แท็บเพิ่มภารกิจ -->
         <div id="tabQuest" class="tab-content">
-            <div class="form-group"><label>หัวข้อภารกิจ</label><input type="text" id="qTitle"></div>
-            <div class="form-group"><label>ประเภท</label><select id="qType"><option value="word">คำศัพท์</option><option value="sentence">ประโยค</option><option value="story">เรื่องสั้น</option></select></div>
-            <div class="form-group"><label>เนื้อหา (คั่นข้อด้วยเครื่องหมาย | )</label><textarea id="qContent" rows="4"></textarea></div>
-            <div style="flex:1"><label>ความยาก</label>
+            <div class="form-group"><label>หัวข้อภารกิจ</label>
+            <input type="text" id="qTitle"></div>
+            
+<div class="form-group">
+                <label>ประเภทภารกิจและภาษา</label>
+                <select id="qType">
+			<option value="vowel_th">สระ (ภาษาไทย)</option>
+			<option value="consonant_th">พยัญชนะ (ภาษาไทย)</option>
+			<option value="spelling_th">🇹🇭 การอ่านสะกดคำ (ภาษาไทย)</option>
+                    <option value="word_th">คำศัพท์ (ภาษาไทย)</option>
+                    <option value="sentence_th">ประโยค (ภาษาไทย)</option>
+                    <option value="story_th">เรื่องสั้น (ภาษาไทย)</option>
+		        
+                    
+                    
+                    <option value="word_en">คำศัพท์ (English)</option>
+                    <option value="sentence_en">ประโยค (English)</option>
+                     <option value="consonant_en">พยัญชนะ (English)</option>
+              
+                </select>
+            </div>
+            <div class="form-group">
+                <label>เนื้อหา (คั่นข้อด้วยเครื่องหมาย | ) 
+                    <br><small style="color:#d84315; font-weight:normal;">💡 ทริค: หากเป็นพยัญชนะหรือสะกดคำ ให้ใช้เครื่องหมาย = คั่น เช่น <b>มะนาว=มออะมะนออาวอนาว</b> หรือ <b>ก=กอ</b></small>
+                </label>
+                <textarea id="qContent" rows="4"></textarea>
+            </div>
+
+
+
+                       <div style="flex:1"><label>ความยาก</label>
     <select id="qDiff">
         <option value="⭐">⭐ ง่าย</option>
         <option value="⭐⭐">⭐⭐ ปานกลาง</option>
@@ -89,6 +116,7 @@
                     <option value="buff">🔥 ไอเทมบัฟ (เก็บเข้ากระเป๋า)</option>
                     <option value="box">📦 กล่องสุ่ม (Gacha Box)</option>
                     <option value="real">🎁 ของรางวัลจริง</option>
+		    <option value="melody">🎵 เสียงเพลง (Melody)</option>
                 </select>
                 <div id="costumeMenu" style="display: block; background: #bbdefb; padding: 12px; border-radius: 5px; margin-top:5px;">
                     <label>ส่วนสวมใส่ร่างกาย (เฉพาะชุด/ฉาก):</label>
@@ -150,7 +178,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz05jgZVbRe-A50UHGn2xCFlXaT6ms7aswl8CKVXf4RLSmEn4IRADsgsCcYTmnZbGZagg/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzJFbnGwIG6TgnWrGZpWrQmzHXU86-7xU_PC0uZD4v8mpsoe-QkauZOZ5FPYLWxkVxWsg/exec";
         let allRanks = []; let allClasses = []; let globalUsers = []; let allGacha = [];
 
         window.onload = fetchData;
