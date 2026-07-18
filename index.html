@@ -83,9 +83,34 @@
 
         /* 🌟 CSS Popup สวยงามใหม่ */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:2000; }
-        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; position: relative;}
-        .reading-text { font-size: 35px; font-weight: bold; margin: 20px 0; padding: 20px; background: #fff8e1; border-radius: 15px; border: 2px dashed #ffc107; max-height: 400px; overflow-y: auto; letter-spacing: 1px;}
-        
+        /* จำกัดความสูงของ Popup ไม่เกิน 90% ของหน้าจอ (90vh) และให้ไถขึ้นลงได้ */
+.modal-content { 
+    background: white; 
+    padding: 30px; 
+    border-radius: 20px; 
+    width: 90%; 
+    max-width: 400px; 
+    text-align: center; 
+    position: relative; 
+    max-height: 90vh; /* เพิ่มบรรทัดนี้ */
+    overflow-y: auto; /* เพิ่มบรรทัดนี้ */
+}
+
+/* ปรับให้กรอบข้อความใช้หน่วย vh แทน px เพื่อให้ยืดหยุ่นตามหน้าจอ และรองรับการตัดคำอัตโนมัติ */
+.reading-text { 
+    font-size: 35px; 
+    font-weight: bold; 
+    margin: 20px 0; 
+    padding: 20px; 
+    background: #fff8e1; 
+    border-radius: 15px; 
+    border: 2px dashed #ffc107; 
+    max-height: 40vh; /* เปลี่ยนจาก 400px เป็น 40vh */
+    overflow-y: auto; 
+    letter-spacing: 1px; 
+    word-wrap: break-word; /* เพิ่มการตัดคำกรณีคำศัพท์ยาวเกิน */
+    overflow-wrap: break-word; /* เพิ่มการตัดคำ */
+}
         .mic-btn { background: #4caf50; color: white; font-size: 20px; padding: 15px 40px; border-radius: 50px; cursor: pointer; margin:10px; border:none; box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); width: 100%; max-width: 300px;}
         .mic-btn.recording { background: #f44336; animation: pulseMic 1.5s infinite; }
         @keyframes pulseMic { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
@@ -181,7 +206,7 @@
         
         .card-image-wrapper {
     width: 100%;          /* ให้กรอบรูปกว้างเต็มการ์ด */
-    height: 280px;        /* เพิ่มความสูงของกรอบรูป (คุณครูสามารถปรับตัวเลขนี้ให้สูงขึ้นหรือลดลงได้ตามต้องการ) */
+    height: 150px;        /* เพิ่มความสูงของกรอบรูป (คุณครูสามารถปรับตัวเลขนี้ให้สูงขึ้นหรือลดลงได้ตามต้องการ) */
     flex-grow: 1;         /* คำสั่งนี้จะช่วยให้กรอบรูปขยายกินพื้นที่ว่าง และดันส่วนของ HP/ATK ลงไปด้านล่าง */
     margin-bottom: 15px;  /* เว้นระยะห่างด้านล่างระหว่างรูปกับหลอด HP เล็กน้อย */
 }
@@ -419,11 +444,11 @@
     border: 2px dashed #ff9900;
     border-radius: 15px;
     color: #4a0080;
-    font-size: 2.5rem;
+    font-size: 2rem; /* ปรับลดขนาดตัวอักษรลงจาก 2.5rem */
     font-weight: bold;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
     box-shadow: 0 0 20px rgba(255, 204, 0, 0.6);
-    padding: 15px;
+    padding: 10px; /* ปรับลดขอบด้านในลงจาก 15px */
     margin-bottom: 15px;
 }
 
@@ -469,6 +494,137 @@
     background: linear-gradient(90deg, #ff3333, #cc0000);
     height: 100%;
     box-shadow: 0 0 10px #ff3333;
+}
+@media screen and (max-height: 500px) {
+    .fantasy-battle-arena {
+        padding: 10px 15px !important;
+        gap: 10px !important;
+    }
+    .fantasy-battle-arena img {
+        max-height: 160px !important;
+        width: auto !important;
+        object-fit: contain;
+    }
+    .fantasy-player-card, .fantasy-monster-card {
+        padding: 10px !important;
+    }
+    .fantasy-target-word {
+        padding: 8px 15px !important;
+        font-size: 1.5rem !important;
+        margin-bottom: 8px !important;
+    }
+    .btn-fantasy-strike {
+        padding: 8px 15px !important;
+        font-size: 14px !important;
+    }
+    .fantasy-progress-bg {
+        height: 12px !important;
+        margin-top: 5px !important;
+    }
+}
+
+/* 💀 สไตล์ Popup พ่ายแพ้แบบดาร์กแฟนตาซี (อลังการ) */
+.epic-defeat-popup {
+    border: 2px solid #ff1a1a !important;
+    box-shadow: 0 0 40px rgba(200, 0, 0, 0.6), inset 0 0 30px rgba(0, 0, 0, 0.9) !important;
+    border-radius: 12px !important;
+    background: linear-gradient(135deg, #1a0000 0%, #3a0000 100%) !important; /* พื้นหลังไล่สีแดงเลือด-ดำ */
+}
+
+/* ปรับแต่งปุ่มกดกลับไปพักฟื้น */
+.epic-defeat-btn {
+    background: linear-gradient(to bottom, #8b0000, #4d0000) !important;
+    border: 1px solid #ff4d4d !important;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5) !important;
+    color: #fff !important;
+    font-weight: bold !important;
+    font-size: 1.1rem !important;
+    border-radius: 8px !important;
+    padding: 10px 24px !important;
+    transition: all 0.3s ease !important;
+}
+
+.epic-defeat-btn:hover {
+    background: linear-gradient(to bottom, #ff0000, #990000) !important;
+    box-shadow: 0 0 25px rgba(255, 0, 0, 0.9) !important;
+    transform: scale(1.05) !important;
+}
+
+/* โครงสร้างปุ่มหลัก */
+.epic-castle-btn {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 15px 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 1;
+    
+    /* เอฟเฟกต์พื้นหลังสีม่วงวิ่งวน */
+    background: linear-gradient(90deg, #6a1b9a, #9c27b0, #e040fb, #9c27b0, #6a1b9a);
+    background-size: 300% 300%;
+    animation: gradientRun 3s ease infinite, pulseGlow 2s infinite;
+    
+    /* เงาเรืองแสงรอบตัวอักษร */
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* เมื่อเอาเมาส์ชี้ ปุ่มจะขยายเล็กน้อยและไฟวิ่งเร็วขึ้น */
+.epic-castle-btn:hover {
+    transform: scale(1.02);
+    animation: gradientRun 1.5s ease infinite, pulseGlowHover 1.5s infinite;
+}
+
+/* เอฟเฟกต์เส้นแสงวิ่งผ่าน (Light Sweep) */
+.epic-castle-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-25deg);
+    animation: lightSweep 3s infinite;
+    z-index: -1;
+}
+
+/* --- ชุดคำสั่ง Animation --- */
+
+/* อนิเมชั่นเลื่อนพื้นหลังให้ดูเหมือนสีไหล */
+@keyframes gradientRun {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ออร่าเรืองแสงรอบปุ่ม (จังหวะปกติ) */
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 10px rgba(156, 39, 176, 0.5); }
+    50% { box-shadow: 0 0 25px rgba(224, 64, 251, 0.9); }
+    100% { box-shadow: 0 0 10px rgba(156, 39, 176, 0.5); }
+}
+
+/* ออร่าเรืองแสงรอบปุ่ม (จังหวะชี้เมาส์) */
+@keyframes pulseGlowHover {
+    0% { box-shadow: 0 0 15px rgba(224, 64, 251, 0.7); }
+    50% { box-shadow: 0 0 35px rgba(255, 255, 255, 0.9); }
+    100% { box-shadow: 0 0 15px rgba(224, 64, 251, 0.7); }
+}
+
+/* อนิเมชั่นเส้นแสงวิ่งพาดผ่าน */
+@keyframes lightSweep {
+    0% { left: -150%; }
+    20% { left: 200%; }
+    100% { left: 200%; }
 }
 
     </style>
@@ -600,7 +756,7 @@
             
 
 <!-- 🏰 ปุ่มเข้าปราสาทไม่สิ้นสุด -->
-<button class="btn" style="background: linear-gradient(135deg, #6a1b9a, #aa00ff); color: white; width: 100%; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 12px; margin-top: 15px; box-shadow: 0 4px 12px rgba(106,27,154,0.3);" onclick="promptTowerFloor()">
+<button class="epic-castle-btn" onclick="promptTowerFloor()">
     🏰 ท้าทายปราสาทไม่สิ้นสุด
 </button>
         </div>
@@ -641,10 +797,33 @@
         <!-- แท็บกระดานผู้นำ -->
         <div id="lTab" class="tab-content" style="display: none;">
             <div style="background: white; padding: 20px; border-radius: 15px; text-align: center;">
-                <div class="shop-nav">
+                
+                <!-- ส่วนหัวและคำอธิบายที่หายไป -->
+                <h3 style="color:#00838f; font-size: 24px; margin-bottom: 5px;">🏆 Hall of Fame</h3>
+                <p style="color:#777; font-size:14px; margin-top: 0; margin-bottom: 20px;">อัศวินนักอ่านที่แข็งแกร่งที่สุด 100 อันดับ!</p>
+                
+                <!-- ตัวกรองระดับชั้นที่หายไป -->
+                <div style="margin-bottom: 20px;">
+                    <!-- ตัวกรองระดับชั้น -->
+<div style="margin-bottom: 20px;">
+    <select id="lbClassFilter" onchange="renderLeaderboard()" style="padding: 10px; width: 100%; max-width: 300px; border-radius: 10px; border: 2px solid var(--primary); font-family: 'Sarabun';">
+        <option value="all">🏆 ดูอันดับรวมทุกระดับชั้น</option>
+        <option value="ประถมศึกษาปีที่ 1">🏅 เฉพาะชั้น ประถมศึกษาปีที่ 1</option>
+        <option value="ประถมศึกษาปีที่ 2">🏅 เฉพาะชั้น ประถมศึกษาปีที่ 2</option>
+        <option value="ประถมศึกษาปีที่ 3">🏅 เฉพาะชั้น ประถมศึกษาปีที่ 3</option>
+        <option value="ประถมศึกษาปีที่ 4">🏅 เฉพาะชั้น ประถมศึกษาปีที่ 4</option>
+        <option value="ประถมศึกษาปีที่ 5">🏅 เฉพาะชั้น ประถมศึกษาปีที่ 5</option>
+        <option value="ประถมศึกษาปีที่ 6">🏅 เฉพาะชั้น ประถมศึกษาปีที่ 6</option>
+    </select>
+</div>
+                </div>
+
+                <!-- แท็บสลับโหมด คะแนน/ปราสาท (จัดให้อยู่ตรงกลาง) -->
+                <div class="shop-nav" style="justify-content: center;">
                     <div class="shop-tab active" id="btnLbPoints" onclick="switchLB('points')">🏆 คะแนนผู้เล่น</div>
                     <div class="shop-tab" id="btnLbTower" onclick="switchLB('tower')">🏰 ปราสาท</div>
                 </div>
+
                 <div id="leaderboardBox"></div>
             </div>
         </div>
@@ -696,21 +875,17 @@
 
     </div>
 
-
 <!-- 🏰 Popup หน้าต่างโหมดต่อสู้ ปราสาทไม่สิ้นสุด (อัปเดตสไตล์ลานประลอง) -->
 <div id="battleModal" class="battle-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
     
     <!-- ⚔️ พื้นหลังลานประลองแฟนตาซี -->
-    <div class="fantasy-battle-arena" style="width: 95%; max-width: 900px; position: relative;">
+    <div class="fantasy-battle-arena" style="width: 95%; max-width: 900px; max-height: 90vh; overflow-y: auto; position: relative;">
         
         <!-- ปุ่มปิด Popup -->
         <span class="close-battle-btn" onclick="closeBattleTower()" style="position: absolute; top: 15px; right: 20px; color: white; font-size: 24px; cursor: pointer; font-weight: bold; text-shadow: 0 0 5px #000;">✖</span>
         
-        <h2 id="battleTowerTitle" style="text-align: center; color: #ffcc00; margin: 0 0 5px 0; text-shadow: 0 0 10px #ffcc00;">🏰 ปราสาทไม่สิ้นสุด (ชั้นที่ 1)</h2>
-        <div style="font-weight: bold; color: #ccc; margin-bottom: 20px; text-align: center;">กำจัดศัตรูด้วยการออกเสียงคำศัพท์ให้ถูกต้อง!</div>
-        
-        <!-- โซนต่อสู้สไตล์ Card Battle (3 คอลัมน์) -->
-        <div class="battle-arena" style="display: flex; justify-content: space-between; gap: 15px; align-items: stretch;">
+        <!-- โซนต่อสู้สไตล์ Card Battle (3 คอลัมน์) เพิ่ม margin-top เพื่อเว้นระยะจากปุ่มปิดด้านบน -->
+        <div class="battle-arena" style="display: flex; justify-content: space-between; gap: 15px; align-items: stretch; margin-top: 25px;">
             
             <!-- 🃏 การ์ดฝั่งซ้าย: ตัวละครนักเรียน -->
             <div class="card-side" style="width: 30%;">
@@ -734,6 +909,10 @@
 
             <!-- 🎯 การ์ดตรงกลาง: แท่นร่ายเวทมนตร์คำศัพท์ -->
             <div class="center-arena" id="battleCenterArena" style="width: 36%; display: flex; flex-direction: column; justify-content: center;">
+                
+                <!-- 🌟 ย้ายชื่อชั้นมาไว้ในส่วนตรงกลาง เหนือกล่องข้อความ -->
+                <h2 id="battleTowerTitle" style="text-align: center; color: #ffcc00; margin: 0 0 15px 0; font-size: 22px; text-shadow: 0 0 10px #ffcc00; line-height: 1.2;">🏰 ปราสาทไม่สิ้นสุด (ชั้นที่ 1)</h2>
+                
                 <div id="battleWord" class="fantasy-target-word" style="text-align: center;">Vocabulary</div>
                 <button id="battleMicBtn" class="btn-fantasy-strike" onclick="startBattleMic()">🎤 กดเริ่มอ่านโจมตี</button>
                 <div id="battleStatus" style="font-size: 14px; color: #e0e0e0; text-align: center; min-height: 45px; line-height: 1.4; margin-top: 10px;">พร้อมรบแล้วอัศวิน!</div>
@@ -776,15 +955,20 @@
         </div>
         
     </div> 
-</div>   <!-- หน้าต่างอ่านหนังสือ (เพิ่มปุ่มส่งคำตอบเรื่องสั้น) -->
+</div>
+
+
+
+
+
+   <!-- หน้าต่างอ่านหนังสือ (เพิ่มปุ่มส่งคำตอบเรื่องสั้น) -->
     <div id="gameModal" class="modal" style="z-index: 2500;">
         <div class="modal-content" style="max-width: 600px;">
             <h2 id="gTitle" style="color: var(--primary); margin-top: 0;">ภารกิจ</h2>
             <div id="gProgress" style="font-weight:bold; color:#777; margin-bottom:10px;"></div>
-            <div id="gText" class="reading-text"></div>
+           
+    <div id="gText" class="reading-text"></div>
 <div style="text-align: center; margin-bottom: 15px;">
-    <!-- โค้ดโจทย์เดิมอาจจะอยู่แถวๆ นี้ -->
-    <div id="gText" style="font-size: 30px; margin-bottom: 10px;"></div>
     
     <!-- 🌟 เพิ่มปุ่มลำโพงซ่อนไว้ตรงนี้ -->
     <button id="speakerBtn" onclick="handleSpeakerBtn()" style="display:none; font-size:28px; background:none; border:none; cursor:pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">🔊</button>
@@ -1143,65 +1327,138 @@ cardUpgradeConfig = res.cardUpgrades || [];
             });
         }
 
-        // 🌟 ฟังก์ชันเรนเดอร์กระดานผู้นำโดยเฉพาะ
-        function renderLeaderboard() {
-            const lbBox = document.getElementById('leaderboardBox');
-            if (!lbBox) return;
-            
-            let filterEl = document.getElementById('lbClassFilter');
-            let filter = filterEl ? filterEl.value : "all";
-            
-            let filteredUsers = [...allU].filter(u => String(u.UserID || "").trim() !== "");
-            if(filter !== "all") {
-                filteredUsers = filteredUsers.filter(u => String(u.ClassName || "").trim() === filter.trim());
-            }
-            
-            let sortedUsers = filteredUsers.sort((a, b) => (Number(b.TotalPoints) || 0) - (Number(a.TotalPoints) || 0)).slice(0, 100);
-            
-            let lbHtml = "";
-            sortedUsers.forEach((u, index) => {
-                let rank = index + 1; let rankDisplay = rank; let cardClass = "";
-                if(rank === 1) { rankDisplay = "🥇"; cardClass = "top1"; } else if(rank === 2) { rankDisplay = "🥈"; cardClass = "top2"; } else if(rank === 3) { rankDisplay = "🥉"; cardClass = "top3"; }
-                if (String(u.UserID) === String(curU.id)) cardClass += " me";
+function renderLeaderboard() {
+    const lbBox = document.getElementById('leaderboardBox');
+    let lbHtml = "";
+    
+    let filterEl = document.getElementById('lbClassFilter');
+    let filter = filterEl ? filterEl.value : "all";
+    
+    // กรองเฉพาะคนที่มี UserID
+    let filteredUsers = [...allU].filter(u => String(u.UserID || "").trim() !== "");
+    
+    // 🌟 1. การกรองชั้นเรียนแบบรัดกุม (ตัดช่องว่างทิ้งทั้งหมดเพื่อป้องกันการพิมพ์เว้นวรรคผิด)
+    if(filter !== "all") {
+        let filterValue = filter.replace(/\s+/g, ''); // ลบช่องว่างออกจากค่าที่เลือก
+        filteredUsers = filteredUsers.filter(u => {
+            let userClass = String(u.ClassName || "").replace(/\s+/g, '');
+            return userClass === filterValue;
+        });
+    }
 
-                let eq = {}; try { eq = u.Equipped ? JSON.parse(u.Equipped) : {}; } catch(e){}
-                let baseAva = String(u.Avatar || BASE_CHARACTERS[0]);
-                let miniAvaHtml = `<div class="mini-avatar-container">`;
-                if (baseAva.startsWith('http') || baseAva.startsWith('./') || baseAva.includes('.png')) { miniAvaHtml += `<img src="${baseAva}" class="mini-avatar-img" onerror="this.style.display='none'">`; } 
-                else { miniAvaHtml += `<div style="font-size:40px; text-align:center; margin-top:10px;">${baseAva}</div>`; }
-                
-                const layers = ['shoes', 'body_dress', 'body_pants', 'body_shirt', 'face', 'head', 'handheld']; let zi = 2;
-                layers.forEach(l => {
-                    if(eq[l]) {
-                        const itemData = allS.find(s => String(s.ItemID) === String(eq[l]));
-                        if(itemData) {
-                            let srcFile = String(itemData.LayerImage || itemData.Icon || "");
-                            if(srcFile.startsWith('http') || srcFile.startsWith('./') || srcFile.includes('.png')) { miniAvaHtml += `<img src="${srcFile}" class="mini-layer" style="z-index:${zi};" onerror="this.style.display='none'">`; }
-                        }
-                    } zi++;
-                });
-                miniAvaHtml += `</div>`;
-
-                let rName = "-"; let uPts = Number(u.TotalPoints) || 0;
-                if(allR.length > 0) { rName = allR[0].RankName; allR.forEach(r => { if(uPts >= Number(r.MinPoints)) rName = r.RankName; }); }
-
-                lbHtml += `
-                <div class="lb-card ${cardClass.trim()}">
-                    <div class="lb-rank">${rankDisplay}</div>
-                    ${miniAvaHtml}
-                    <div class="lb-info">
-                        <div class="lb-name">${u.DisplayName || "นักเรียน"}</div>
-                        <div class="lb-rankname">ยศ: ${rName}</div>
-                    </div>
-                    <div class="lb-stats">
-                        <div class="lb-score">${uPts} Exp</div>
-                        <div class="lb-coins">🪙 ${Number(u.Coins)||0} Coins</div>
-                    </div>
-                </div>`;
-            });
-            if(lbHtml === "") lbHtml = "<p style='color:#777;'>ยังไม่มีข้อมูลผู้เล่นในระบบ</p>";
-            lbBox.innerHTML = lbHtml;
+    // 🌟 ฟังก์ชันตัวช่วย: ดึง URL รูปภาพจาก รหัสไอเทม (ID)
+    function getItemImageUrl(itemId) {
+        if (!itemId) return '';
+        
+        // ใช้ตัวแปร allS ซึ่งเก็บข้อมูลไอเทมทั้งหมดในระบบ
+        if (typeof allS !== 'undefined') {
+            let item = allS.find(x => x.ItemID === itemId);
+            // ดึง URL รูปภาพจาก LayerImage หรือ Icon ตามที่โค้ดส่วนอื่นใช้
+            return item ? (item.LayerImage || item.Icon || '') : '';
         }
+        return '';
+    }
+
+    if (currentLbMode === 'points') {
+        // 🏆 โหมดคะแนนผู้เล่น (Exp)
+        filteredUsers.sort((a,b) => (Number(b.TotalPoints)||0) - (Number(a.TotalPoints)||0)).slice(0, 100).forEach((u, i) => {
+            let rank = i + 1;
+            let medalHtml = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+            let bgStyle = rank === 1 ? 'border: 2px solid #00838f; background: #e0f7fa;' :
+                          rank === 2 ? 'border: 2px solid #9e9e9e; background: #f5f5f5;' :
+                          rank === 3 ? 'border: 2px solid #ff9800; background: #fff3e0;' :
+                          'border: 1px solid #ddd; background: white;';
+            
+            let avatarSrc = u.Avatar || 'https://via.placeholder.com/50'; 
+            let coins = u.Coins || 0;
+            let maxFloor = u.HighestFloor || 0;
+            let title = u.Title || 'มือใหม่';
+
+            // 🌟 2. ถอดรหัส JSON เพื่อดึงรหัสเสื้อและกางเกง
+            let eq = {};
+            try {
+                eq = u.Equipped ? (typeof u.Equipped === 'string' ? JSON.parse(u.Equipped) : u.Equipped) : {};
+            } catch(e) {}
+
+            // หาลิงก์รูปรหัสไอเทม
+            let shirtImg = getItemImageUrl(eq.body_shirt);
+            let pantsImg = getItemImageUrl(eq.body_pants);
+
+            // วางเลเยอร์ชุดทับลงไป
+            let layersHtml = '';
+            if (pantsImg) layersHtml += `<img src="${pantsImg}" style="width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; z-index: 2;" onerror="this.style.display='none'">`;
+            if (shirtImg) layersHtml += `<img src="${shirtImg}" style="width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; z-index: 3;" onerror="this.style.display='none'">`;
+
+            let avatarHtml = `
+            <div style="position: relative; width: 50px; height: 60px; background: #e0f2f1; border-radius: 8px; flex-shrink: 0; overflow: hidden; padding: 2px;">
+                <img src="${avatarSrc}" style="width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; z-index: 1;" onerror="this.style.display='none'">
+                ${layersHtml}
+            </div>`;
+
+            lbHtml += `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; margin-bottom: 10px; border-radius: 12px; ${bgStyle} box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 20px; font-weight: bold; width: 30px; text-align: center; color: #555;">${medalHtml}</div>
+                    ${avatarHtml}
+                    <div>
+                        <div style="font-weight: bold; font-size: 16px; color: #333;">${u.DisplayName || "นักเรียน"}</div>
+                        <div style="font-size: 12px; color: #777;">ยศ: ${title}</div>
+                    </div>
+                </div>
+                <div style="text-align: right; line-height: 1.4;">
+                    <div style="font-weight: bold; font-size: 16px; color: #00838f;">${Number(u.TotalPoints)||0} Exp</div>
+                    <div style="font-size: 13px; color: #f57c00;">🪙 ${coins} Coins</div>
+                    <div style="font-size: 12px; color: #9c27b0;">🏰 ปราสาท: ชั้นที่ ${maxFloor}</div>
+                </div>
+            </div>`;
+        });
+    } else {
+        // 🏰 โหมดปราสาท
+        filteredUsers.sort((a,b) => (Number(b.HighestFloor)||0) - (Number(a.HighestFloor)||0)).slice(0, 100).forEach((u, i) => {
+            let eq = {};
+            try {
+                eq = u.Equipped ? (typeof u.Equipped === 'string' ? JSON.parse(u.Equipped) : u.Equipped) : {};
+            } catch(e) {}
+            
+            let activeC = (eq.activeCard && typeof cardDbData !== 'undefined') ? cardDbData.find(c=>c.CardID === eq.activeCard) : null;
+            let stars = (eq.cardStars && eq.activeCard) ? (eq.cardStars[eq.activeCard]||0) : 0;
+            
+            let rank = i + 1;
+            let medalHtml = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+            let bgStyle = rank === 1 ? 'border: 2px solid #00838f; background: #e0f7fa;' :
+                          rank === 2 ? 'border: 2px solid #9e9e9e; background: #f5f5f5;' :
+                          rank === 3 ? 'border: 2px solid #ff9800; background: #fff3e0;' :
+                          'border: 1px solid #eee; background: white;';
+            
+            let starHtml = stars > 0 ? '⭐'.repeat(stars) : '<span style="color:#aaa;">(0 ดาว)</span>';
+
+            lbHtml += `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; margin-bottom: 10px; border-radius: 12px; ${bgStyle} box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="font-size: 20px; font-weight: bold; width: 30px; text-align: center; color: #333;">${medalHtml}</div>
+                    ${activeC ? `<img src="${activeC.CardImage}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">` : `<div style="font-size: 30px; margin-right: 10px;">🃏</div>`}
+                    <div>
+                        <div style="font-weight: bold; font-size: 16px; color: #333;">${u.DisplayName || "นักเรียน"}</div>
+                        <div style="font-size: 12px; color: #666;">${activeC ? activeC.CardName : 'ยังไม่เลือกการ์ด'} ${starHtml}</div>
+                    </div>
+                </div>
+                <div style="text-align: right; font-weight: bold; font-size: 16px; color: #00838f;">ชั้นที่ ${u.HighestFloor||0}</div>
+            </div>`;
+        });
+    }
+    
+    // แสดงข้อความเมื่อไม่มีคนในชั้นนั้น
+    if(lbHtml === "") {
+        lbHtml = `
+        <div style="padding: 30px 10px; text-align: center; color: #777; background: #f9f9f9; border-radius: 12px; margin-top: 15px; border: 1px dashed #ccc;">
+            <div style="font-size: 30px; margin-bottom: 10px;">🔍</div>
+            <p style="margin: 0;">ยังไม่มีผู้เล่นใน <strong>${filter !== 'all' ? filter : 'ระบบ'}</strong></p>
+        </div>`;
+    }
+    
+    lbBox.innerHTML = lbHtml;
+}
+
 
         // 🌟 อัปเกรดระบบเพื่อความเสถียรป้องกัน JS Crash
         function refreshUI() {
@@ -2658,74 +2915,94 @@ updateBattleBagUI();
         }
 
 function winBattle() {
-            stopBattleTimer(); // หยุดเวลาทันทีที่ชนะ
-            
-            let isBossFloor = (currentBattle.floor % 10 === 0);
-            
-            // 🌟 กำหนดของรางวัลตั้งต้นเมื่อชนะ
-            let baseExp = isBossFloor ? 30 : 10;
-            let baseCoins = 10;
-            
-            // 🌟 ระบบ Reward Scaling: ถ้าเคยผ่านชั้นนี้แล้ว ได้ของรางวัลแค่ 20% (ลดทั้ง Exp และ Coins)
-            let isReplay = currentBattle.floor <= (curU.highestFloor || 0);
-            let rewardMult = isReplay ? 0.2 : 1.0; 
-            
-            // คำนวณรางวัลที่ถูกหักแล้ว (ใช้ Math.max เพื่อให้การันตีขั้นต่ำที่ 1 เสมอ)
-            let ptsEarned = Math.max(1, Math.floor(baseExp * rewardMult));
-            let coinsEarned = Math.max(1, Math.floor(baseCoins * rewardMult));
-            
-            // บันทึกชั้นสูงสุดที่เคยผ่านมาได้
-            if (currentBattle.floor > (curU.highestFloor || 0)) {
-                curU.highestFloor = currentBattle.floor;
-            }
+    stopBattleTimer(); // หยุดเวลาทันทีที่ชนะ
+    
+    // 🎵 สั่งเล่นเสียงชนะ (ถ้ามีฟังก์ชันนี้)
+    if (typeof playSFX === 'function') playSFX('win'); 
+    
+    let isBossFloor = (currentBattle.floor % 10 === 0);
+    
+    // 🌟 กำหนดของรางวัลตั้งต้นเมื่อชนะ
+    let baseExp = isBossFloor ? 30 : 10;
+    let baseCoins = 10;
+    
+    // 🌟 ระบบ Reward Scaling: ถ้าเคยผ่านชั้นนี้แล้ว ได้ของรางวัลแค่ 20% (ลดทั้ง Exp และ Coins)
+    let isReplay = currentBattle.floor <= (curU.highestFloor || 0);
+    let rewardMult = isReplay ? 0.2 : 1.0; 
+    
+    // คำนวณรางวัลที่ถูกหักแล้ว (ใช้ Math.max เพื่อให้การันตีขั้นต่ำที่ 1 เสมอ)
+    let ptsEarned = Math.max(1, Math.floor(baseExp * rewardMult));
+    let coinsEarned = Math.max(1, Math.floor(baseCoins * rewardMult));
+    
+    // บันทึกชั้นสูงสุดที่เคยผ่านมาได้
+    if (currentBattle.floor > (curU.highestFloor || 0)) {
+        curU.highestFloor = currentBattle.floor;
+    }
 
-            // เพิ่มคะแนนและเหรียญให้ผู้เล่น
-            curU.points = (Number(curU.points) || 0) + ptsEarned;
-            curU.coins = (Number(curU.coins) || 0) + coinsEarned;
+    // เพิ่มคะแนนและเหรียญให้ผู้เล่น
+    curU.points = (Number(curU.points) || 0) + ptsEarned;
+    curU.coins = (Number(curU.coins) || 0) + coinsEarned;
 
-            // ข้อความสรุปรางวัล (แสดงข้อความแจ้งเตือนสีแดงถ้าเป็นด่านที่เคยเล่นแล้ว)
-            let rewardHtml = `
-                <div style="font-size:16px; margin: 10px 0;">
-                    ได้รับ <b style="color:#4caf50;">+${ptsEarned} EXP</b> และ <b style="color:#ff9800;">+${coinsEarned} เหรียญทอง</b>
-                    ${isReplay ? '<br><span style="font-size:13px; color:#f44336; font-weight:normal;">(รางวัลลดลงเนื่องจากเป็นชั้นที่เคยผ่านแล้ว)</span>' : ''}
+   // 🏆 ปรับแต่งข้อความสรุปรางวัลให้กระชับขึ้น
+    let rewardHtml = `
+        <div style="font-size: 15px; margin: 10px 0; padding: 10px; background: rgba(0, 0, 0, 0.4); border-radius: 8px; border: 1px solid rgba(255, 215, 0, 0.5); box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.2);">
+            ได้รับ <b style="color:#4caf50; text-shadow: 0 0 8px #4caf50; font-size: 16px;">+${ptsEarned} EXP</b> 
+            และ <b style="color:#ffd700; text-shadow: 0 0 8px #ffd700; font-size: 16px;">+${coinsEarned} เหรียญทอง</b>
+            ${isReplay ? '<br><span style="font-size:12px; color:#ff5252; font-weight:normal; margin-top: 5px; display: inline-block;">(รางวัลลดลงเนื่องจากเป็นชั้นที่เคยเคลียร์แล้ว)</span>' : ''}
+        </div>
+    `;
+
+    // 🌟 ดรอปไอเทมบอส: ปรับกล่องไอเทมให้วิบวับอลังการ
+    if (isBossFloor && !isReplay) {
+        let dropItem = getRandomDrop();
+        if(dropItem) {
+            if (!curU.inventory) curU.inventory = [];
+            curU.inventory.push(dropItem.id);
+
+            rewardHtml += `
+                <div style="background: linear-gradient(135deg, rgba(255,215,0,0.15) 0%, rgba(255,255,255,0.05) 100%); padding: 20px; border-radius: 12px; border: 2px solid ${dropItem.color}; box-shadow: 0 0 20px ${dropItem.color}80; margin-top: 15px; animation: zoomInPopup 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; background: radial-gradient(circle, ${dropItem.color}20 0%, transparent 70%); z-index: 0;"></div>
+                    <div style="font-size:15px; color:#ffd700; margin-bottom: 12px; z-index: 1; text-shadow: 0 0 5px rgba(255,215,0,0.8); letter-spacing: 1px;">✨ บอสดรอปไอเทมระดับแรร์! ✨</div>
+                    <img src="${dropItem.imageUrl}" style="width: 110px; height: 110px; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0px 0px 12px ${dropItem.color}); transform: scale(1.05); z-index: 1;">
+                    <div style="font-size:24px; font-weight:900; color:${dropItem.color}; text-shadow: 0px 0px 10px rgba(255,255,255,0.8), 0 0 20px ${dropItem.color}; text-align: center; z-index: 1;">${dropItem.name}</div>
+                    <div style="font-size:14px; color:#a5d6a7; font-weight: bold; margin-top: 8px; z-index: 1; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 20px;">${dropItem.statDesc}</div>
                 </div>
             `;
-
-            // 🌟 ดรอปไอเทมบอส: จะดรอปให้เฉพาะการ "ผ่านครั้งแรก" เท่านั้น
-            if (isBossFloor && !isReplay) {
-                let dropItem = getRandomDrop();
-                if(dropItem) {
-                    if (!curU.inventory) curU.inventory = [];
-                    curU.inventory.push(dropItem.id);
-
-                    rewardHtml += `
-                        <div style="background: #fafafa; padding: 15px; border-radius: 10px; border: 2px dashed ${dropItem.color}; margin-top:15px; animation: zoomInPopup 0.5s; display: flex; flex-direction: column; align-items: center;">
-                            <div style="font-size:14px; color:#555; margin-bottom: 8px;">✨ บอสดรอปไอเทมพิเศษเข้ากระเป๋าแล้ว!:</div>
-                            <img src="${dropItem.imageUrl}" style="width: 100px; height: 100px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.2));">
-                            <div style="font-size:20px; font-weight:bold; color:${dropItem.color}; text-shadow: 1px 1px 0px #fff; text-align: center;">${dropItem.name}</div>
-                            <div style="font-size:14px; color:#2e7d32; font-weight: bold; margin-top: 5px;">(คุณสมบัติ: ${dropItem.statDesc})</div>
-                        </div>
-                    `;
-                }
-            } else if (isBossFloor && isReplay) {
-                rewardHtml += `<div style="font-size:13px; color:#777; margin-top:10px; padding: 5px; background: #eee; border-radius: 5px;">🚫 บอสจะไม่ดรอปไอเทมพิเศษเมื่อเล่นซ้ำ</div>`;
-            }
-
-            // สั่งเซฟข้อมูลและรีเฟรชหน้าจอ
-            refreshUI();
-            syncDB("ชนะปราสาท", `ผ่านชั้นที่ ${currentBattle.floor}`);
-
-            Swal.fire({
-                title: '🎉 ปราบมอนสเตอร์สำเร็จ!',
-                html: `คุณเคลียร์ชั้นที่ ${currentBattle.floor} ได้สำเร็จ<br>${rewardHtml}`,
-                icon: 'success',
-                confirmButtonText: 'ขึ้นสู่ชั้นต่อไป 🔼',
-                allowOutsideClick: false
-            }).then(() => {
-                document.getElementById('battleTowerTitle').innerText = `🏰 ปราสาทไม่สิ้นสุด (ชั้นที่ ${currentBattle.floor + 1})`;
-                initBattleFloor(currentBattle.floor + 1);
-            });
         }
+    } else if (isBossFloor && isReplay) {
+        rewardHtml += `<div style="font-size:13px; color:#aaa; margin-top:10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px; border: 1px dashed #666;">🚫 บอสจะไม่ดรอปไอเทมพิเศษเมื่อเคลียร์ซ้ำ</div>`;
+    }
+
+    // สั่งเซฟข้อมูลและรีเฟรชหน้าจอ
+    refreshUI();
+    syncDB("ชนะปราสาท", `ผ่านชั้นที่ ${currentBattle.floor}`);
+
+   // 🏆 แสดง Popup ชนะการต่อสู้สุดอลังการ
+    Swal.fire({
+        // ลด font-size จาก 36px เหลือ 28px
+        title: '<span style="color: #ffd700; text-shadow: 0 0 15px rgba(255, 215, 0, 1), 0 0 30px rgba(255, 255, 255, 0.8); font-size: 28px; letter-spacing: 2px; text-transform: uppercase;">Victory!</span>',
+        html: `
+            <div style="color: #e0e0e0; font-size: 16px; margin-bottom: 5px;">
+                ผู้กล้าพิชิตมอนสเตอร์ในชั้นที่ <b style="color: #ffd700; font-size: 22px; text-shadow: 0 0 8px #ffd700;">${currentBattle.floor}</b> ได้สำเร็จ!<br>
+            </div>
+            ${rewardHtml}
+        `,
+        icon: 'success',
+        iconColor: '#ffd700', 
+        background: 'rgba(20, 25, 35, 0.95)', 
+        backdrop: 'rgba(25, 20, 5, 0.85)', 
+        confirmButtonText: '⚔️ มุ่งสู่ชั้นต่อไป! 🔼',
+        confirmButtonColor: '#b8860b', 
+        allowOutsideClick: false,
+        customClass: {
+            popup: 'epic-victory-popup',      
+            confirmButton: 'epic-victory-btn' 
+        }
+    }).then(() => {
+        document.getElementById('battleTowerTitle').innerText = `🏰 ปราสาทไม่สิ้นสุด (ชั้นที่ ${currentBattle.floor + 1})`;
+        initBattleFloor(currentBattle.floor + 1);
+    });
+}
         
 function updateBattleBagUI() {
     let container = document.getElementById('battlePotionContainer');
@@ -2769,6 +3046,33 @@ function updateBattleBagUI() {
         
         container.appendChild(btn);
     }
+}
+
+ function loseBattle() {
+    stopBattleTimer(); // หยุดเวลาเมื่อแพ้
+    
+    // สั่งเล่นเสียงพ่ายแพ้
+    playSFX('lose');
+
+    Swal.fire({
+        title: '<span style="color: #ff4d4d; text-shadow: 0 0 10px rgba(255,0,0,0.8);">💀 พ่ายแพ้...</span>',
+        html: `<span style="color: #e0e0e0; font-size: 16px;">
+                  คุณถูกมอนสเตอร์จัดการในชั้นที่ <b style="color: #ff4d4d; font-size: 20px;">${currentBattle.floor}</b><br><br>
+                  กองกำลังอัศวินบาดเจ็บหนัก... จำเป็นต้องล่าถอย!
+               </span>`,
+        icon: 'error',
+        confirmButtonText: 'กลับไปพักฟื้น',
+        allowOutsideClick: false,
+        background: 'transparent', // ทำให้พื้นหลังโปร่งใสเพื่อให้ CSS ไล่สีของคุณทำงานได้เต็มที่
+        color: '#fff',
+        customClass: {
+            popup: 'epic-defeat-popup',       // เรียกใช้ CSS กรอบหน้าต่างพ่ายแพ้
+            confirmButton: 'epic-defeat-btn'  // เรียกใช้ CSS ปุ่มกดพ่ายแพ้
+        }
+    }).then(() => {
+        currentBattle.isAnimating = false;
+        closeBattleTower(); 
+    });
 }
 
 async function usePotionInBattle(itemId, effectType, effectValue) {
