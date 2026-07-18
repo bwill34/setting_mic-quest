@@ -251,6 +251,226 @@
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); } 
         }
 
+/* พื้นหลังมืดเวลาเปิด Popup */
+.fantasy-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+}
+
+/* ตัวกล่อง Popup */
+.fantasy-modal-box {
+    background: linear-gradient(180deg, #2a0845 0%, #6441A5 100%);
+    border: 4px solid #FFD700;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5), inset 0 0 15px rgba(0,0,0,0.8);
+    width: 400px;
+    max-width: 90%;
+    text-align: center;
+    color: white;
+    font-family: 'Sarabun', sans-serif;
+    position: relative;
+    padding-bottom: 20px;
+    animation: popupGlow 1.5s infinite alternate;
+}
+
+/* เอฟเฟกต์กล่องเรืองแสง */
+@keyframes popupGlow {
+    from { box-shadow: 0 0 15px #FFD700; }
+    to { box-shadow: 0 0 30px #FFD700; }
+}
+
+/* หัวข้อ Popup */
+.fantasy-header {
+    background: linear-gradient(90deg, transparent, #FFD700, transparent);
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.fantasy-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px white;
+}
+
+/* ป้ายโชว์ชั้นสูงสุด */
+.highest-floor-badge {
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px dashed #FFD700;
+    border-radius: 30px;
+    display: inline-block;
+    padding: 8px 20px;
+    margin-bottom: 15px;
+}
+
+.badge-number {
+    color: #FFD700;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-shadow: 0 0 5px #FFD700;
+}
+
+/* ตัวอักษรรายละเอียด */
+.desc-text {
+    font-size: 1.1rem;
+    margin: 10px 20px;
+}
+
+.sub-desc {
+    font-size: 0.85rem;
+    color: #d1b3ff;
+}
+
+/* กล่องใส่ตัวเลข */
+.input-wrapper input {
+    width: 100px;
+    padding: 10px;
+    font-size: 1.5rem;
+    text-align: center;
+    border: 2px solid #FFD700;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+/* ปุ่มกด */
+.fantasy-footer {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.btn-fantasy-attack {
+    background: linear-gradient(180deg, #ff8c00, #ff0000);
+    border: 2px solid #FFD700;
+    color: white;
+    padding: 10px 25px;
+    font-size: 1.2rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    transition: transform 0.2s;
+}
+
+.btn-fantasy-attack:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px #FFD700;
+}
+
+.btn-fantasy-cancel {
+    background: #555;
+    border: 2px solid #888;
+    color: white;
+    padding: 10px 25px;
+    font-size: 1.1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-fantasy-cancel:hover {
+    background: #333;
+}
+/* ⚔️ คลุมพื้นหลังฉากต่อสู้ทั้งหมด */
+.fantasy-battle-arena {
+    background: linear-gradient(135deg, #130622 0%, #2a1147 100%);
+    border: 2px solid #ffcc00;
+    box-shadow: 0 0 30px rgba(255, 204, 0, 0.4), inset 0 0 20px rgba(0,0,0,0.8);
+    border-radius: 15px;
+    padding: 20px;
+    color: #e0e0e0;
+}
+
+/* 🛡️ การ์ดฝั่งผู้เล่น (อัศวิน) */
+.fantasy-player-card {
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid #00f0ff;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+    border-radius: 12px;
+    padding: 15px;
+    color: white;
+}
+
+/* 👹 การ์ดฝั่งมอนสเตอร์ (บอส) */
+.fantasy-monster-card {
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid #ff3333;
+    box-shadow: 0 0 15px rgba(255, 51, 51, 0.5);
+    border-radius: 12px;
+    padding: 15px;
+    color: white;
+}
+
+/* 💬 กล่องคำศัพท์ตรงกลาง (เป้าหมาย) */
+.fantasy-target-word {
+    background: linear-gradient(to bottom, #ffffff, #fff0b3);
+    border: 2px dashed #ff9900;
+    border-radius: 15px;
+    color: #4a0080;
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    box-shadow: 0 0 20px rgba(255, 204, 0, 0.6);
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+/* 🎤 ปุ่มกดไมค์โจมตี */
+.btn-fantasy-strike {
+    background: linear-gradient(to bottom, #00d2ff, #3a7bd5);
+    border: none;
+    box-shadow: 0 0 15px #00d2ff;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 30px;
+    padding: 12px 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    width: 100%;
+}
+
+.btn-fantasy-strike:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px #00f0ff;
+    background: linear-gradient(to bottom, #3a7bd5, #00d2ff);
+}
+
+/* ❤️ หลอดเลือด HP และหลอดเวลา (ปรับให้ดูมีมิติ) */
+.fantasy-progress-bg {
+    background: #222;
+    border-radius: 10px;
+    border: 1px solid #555;
+    height: 15px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.fantasy-hp-player-fill {
+    background: linear-gradient(90deg, #00f0ff, #0080ff);
+    height: 100%;
+    box-shadow: 0 0 10px #00f0ff;
+}
+
+.fantasy-hp-monster-fill {
+    background: linear-gradient(90deg, #ff3333, #cc0000);
+    height: 100%;
+    box-shadow: 0 0 10px #ff3333;
+}
+
     </style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -291,6 +511,38 @@
     </div>
 
     <div id="loadingOverlay"><div class="spinner"></div><h2 style="color: var(--primary);" id="loadTxt">กำลังเชื่อมต่อ...</h2></div>
+
+
+<!-- 🏰 Popup เลือกระดับชั้น ปราสาทไม่สิ้นสุด (สไตล์แฟนตาซี) -->
+<div id="fantasyTowerModal" class="fantasy-modal-overlay" style="display: none;">
+    <div class="fantasy-modal-box">
+        <div class="fantasy-header">
+            <h2>🏰 ปราสาทไม่สิ้นสุด</h2>
+        </div>
+        
+        <!-- โชว์สถิติชั้นสูงสุด -->
+        <div class="highest-floor-badge">
+            <span style="color: white; font-size: 1rem;">สถิติสูงสุดที่เคยพิชิต: </span>
+            <span class="badge-number" id="fantasyHighestFloor">0</span>
+        </div>
+        
+        <div class="desc-text">
+            ระบุชั้นที่ต้องการเข้าไปท้าทาย<br>
+            <span class="sub-desc">(มินิบอสรออยู่ทุกชั้น บอสใหญ่ปรากฏตัวทุกชั้นที่ 10)</span>
+        </div>
+        
+        <!-- กล่องใส่ตัวเลขชั้น -->
+        <div class="input-wrapper">
+            <input type="number" id="fantasyFloorInput" min="1" max="999" value="1">
+        </div>
+        
+        <!-- ปุ่มกดยืนยัน/ยกเลิก -->
+        <div class="fantasy-footer">
+            <button class="btn-fantasy-cancel" onclick="closeFantasyTowerModal()">ยกเลิก</button>
+            <button class="btn-fantasy-attack" onclick="confirmFantasyTower()">⚔️ บุกปราสาท!</button>
+        </div>
+    </div>
+</div>
 
     <!-- หน้า Login -->
     <div id="loginPage" class="page active">
@@ -445,73 +697,86 @@
     </div>
 
 
-<!-- 🏰 Popup หน้าต่างโหมดต่อสู้ ปราสาทไม่สิ้นสุด -->
-    <div id="battleModal" class="battle-overlay">
-        <div class="battle-popup">
-            <!-- ปุ่มปิด Popup -->
-            <span class="close-battle-btn" onclick="closeBattleTower()">✖</span>
+<!-- 🏰 Popup หน้าต่างโหมดต่อสู้ ปราสาทไม่สิ้นสุด (อัปเดตสไตล์ลานประลอง) -->
+<div id="battleModal" class="battle-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center;">
+    
+    <!-- ⚔️ พื้นหลังลานประลองแฟนตาซี -->
+    <div class="fantasy-battle-arena" style="width: 95%; max-width: 900px; position: relative;">
+        
+        <!-- ปุ่มปิด Popup -->
+        <span class="close-battle-btn" onclick="closeBattleTower()" style="position: absolute; top: 15px; right: 20px; color: white; font-size: 24px; cursor: pointer; font-weight: bold; text-shadow: 0 0 5px #000;">✖</span>
+        
+        <h2 id="battleTowerTitle" style="text-align: center; color: #ffcc00; margin: 0 0 5px 0; text-shadow: 0 0 10px #ffcc00;">🏰 ปราสาทไม่สิ้นสุด (ชั้นที่ 1)</h2>
+        <div style="font-weight: bold; color: #ccc; margin-bottom: 20px; text-align: center;">กำจัดศัตรูด้วยการออกเสียงคำศัพท์ให้ถูกต้อง!</div>
+        
+        <!-- โซนต่อสู้สไตล์ Card Battle (3 คอลัมน์) -->
+        <div class="battle-arena" style="display: flex; justify-content: space-between; gap: 15px; align-items: stretch;">
             
-            <h2 id="battleTowerTitle" style="text-align: center; color: #673ab7; margin: 0 0 5px 0;">🏰 ปราสาทไม่สิ้นสุด (ชั้นที่ 1)</h2>
-            <div style="font-weight: bold; color: #777; margin-bottom: 15px;">กำจัดศัตรูด้วยการออกเสียงคำศัพท์ให้ถูกต้อง!</div>
-            
-            <!-- โดนต่อสู้สไตล์ Card Battle -->
-            <div class="battle-arena">
-                
-                <!-- 🃏 การ์ดฝั่งซ้าย: ตัวละครนักเรียน -->
-                <div class="card-side">
-                    <div class="battle-card player">
-                        <div id="battlePlayerName" style="font-weight: bold; font-size: 15px; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">อัศวินนักอ่าน</div>
-                        <div class="card-image-wrapper player-img-bg" id="battlePlayerAvatarBox">
-                             <!-- ดึงรูปอวาตาร์สดๆ จากหน้าหลักมาใส่ด้วยสคริปต์ -->
+            <!-- 🃏 การ์ดฝั่งซ้าย: ตัวละครนักเรียน -->
+            <div class="card-side" style="width: 30%;">
+                <div class="fantasy-player-card">
+                    <div id="battlePlayerName" style="font-weight: bold; font-size: 16px; margin-bottom: 10px; color: #00f0ff; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">อัศวินนักอ่าน</div>
+                    <div class="card-image-wrapper player-img-bg" id="battlePlayerAvatarBox" style="width: 100%; aspect-ratio: 1/1; border-radius: 8px; border: 2px solid #00f0ff; overflow: hidden; background: #111;">
+                         <!-- ดึงรูปอวาตาร์สดๆ จากหน้าหลักมาใส่ด้วยสคริปต์ -->
+                    </div>
+                    <div class="battle-stats" style="margin-top: 15px;">
+                        <div class="hp-text-box" style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px;">
+                            <span style="color: #ff66b2;">❤️ HP</span> 
+                            <span id="bPlayerHpText">100 / 100</span>
                         </div>
-                        <div class="battle-stats">
-                            <div class="hp-text-box"><span>❤️ HP</span> <span id="bPlayerHpText">100 / 100</span></div>
-                            <div class="hp-bar-bg-battle"><div id="bPlayerHpFill" class="hp-bar-fill hp-player" style="width: 100%;"></div></div>
-                            <div style="font-size: 14px; color: #2e7d32; font-weight: bold;">⚔️ ATK: <span id="bPlayerAtkText">15</span></div>
+                        <div class="fantasy-progress-bg">
+                            <div id="bPlayerHpFill" class="fantasy-hp-player-fill" style="width: 100%;"></div>
                         </div>
+                        <div style="font-size: 14px; color: #00f0ff; font-weight: bold; margin-top: 10px;">⚔️ ATK: <span id="bPlayerAtkText">15</span></div>
                     </div>
                 </div>
-
-                <!-- 🎯 การ์ดตรงกลาง: แท่นร่ายเวทมนตร์คำศัพท์ -->
-                <div class="center-arena" id="battleCenterArena">
-                    <div id="battleWord" class="reading-text" style="font-size: 36px; width: 100%; text-align: center; margin: 15px 0; background: #fff8e1;">Vocabulary</div>
-                    <button id="battleMicBtn" class="mic-btn" style="width: 100%; margin: 10px 0;" onclick="startBattleMic()">🎤 กดเริ่มอ่านโจมตี</button>
-                    <div id="battleStatus" style="font-size: 16px; color: #555; text-align: center; min-height: 45px; line-height: 1.4;">พร้อมรบแล้วอัศวิน!</div>
-
-<!-- หลอดเวลา 10 วินาที -->
-                <div style="width: 100%; height: 10px; background: #e0e0e0; border-radius: 5px; margin-top: 15px; overflow: hidden; position: relative;">
-                    <div id="battleTimerFill" style="width: 100%; height: 100%; background: #2196f3; transition: width 1s linear, background-color 0.5s;"></div>
-                </div>
-                <div id="timerText" style="font-size: 12px; color: #777; margin-top: 5px;">เวลาในการอ่าน: 10 วินาที</div>
-                </div>
-
-                <!-- 🃏 การ์ดฝั่งขวา: ศัตรู / บอสประจำชั้น -->
-                <div class="card-side">
-                    <div class="battle-card boss">
-                        <div id="battleBossName" style="font-weight: bold; font-size: 15px; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">มอนสเตอร์ประจำชั้น</div>
-                        <div class="card-image-wrapper boss-img-bg" id="battleBossAvatarBox">
-                             <img id="battleBossAvatar" src="" style="width: 100%; height: 100%; object-fit: contain;">
-                        </div>
-                        <div class="battle-stats">
-                            <div class="hp-text-box"><span>😈 HP</span> <span id="bBossHpText">100 / 100</span></div>
-                            <div class="hp-bar-bg-battle"><div id="bBossHpFill" class="hp-bar-fill hp-boss" style="width: 100%;"></div></div>
-                            <div style="font-size: 14px; color: #c62828; font-weight: bold;">⚔️ ATK: <span id="bBossAtkText">10</span></div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
-            <!-- 🎒 แผงไอเทมกดใช้ด่วนระหว่างการต่อสู้ -->
-            <div style="margin-top: 20px; padding: 12px; background: #f5f5f5; border-radius: 15px; border: 2px dashed #bdbdbd;">
-                <div style="font-weight: bold; margin-bottom: 8px; color: #424242; font-size: 14px;">🎒 กระเป๋าเสบียงต่อสู้ฉุกเฉิน</div>
+            <!-- 🎯 การ์ดตรงกลาง: แท่นร่ายเวทมนตร์คำศัพท์ -->
+            <div class="center-arena" id="battleCenterArena" style="width: 36%; display: flex; flex-direction: column; justify-content: center;">
+                <div id="battleWord" class="fantasy-target-word" style="text-align: center;">Vocabulary</div>
+                <button id="battleMicBtn" class="btn-fantasy-strike" onclick="startBattleMic()">🎤 กดเริ่มอ่านโจมตี</button>
+                <div id="battleStatus" style="font-size: 14px; color: #e0e0e0; text-align: center; min-height: 45px; line-height: 1.4; margin-top: 10px;">พร้อมรบแล้วอัศวิน!</div>
 
-                <div id="battlePotionContainer" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-        <!-- ปุ่มน้ำยาจะถูกสร้างตรงนี้อัตโนมัติ -->
-    </div>
-    </div>
+                <!-- ⏳ หลอดเวลา 10 วินาที -->
+                <div style="width: 100%; height: 12px; background: #222; border: 1px solid #555; border-radius: 5px; margin-top: 15px; overflow: hidden; position: relative;">
+                    <div id="battleTimerFill" style="width: 100%; height: 100%; background: linear-gradient(90deg, #00d2ff, #3a7bd5); transition: width 1s linear, background-color 0.5s; box-shadow: 0 0 10px #00d2ff;"></div>
+                </div>
+                <div id="timerText" style="font-size: 12px; color: #aaa; margin-top: 5px; text-align: center;">เวลาในการอ่าน: 10 วินาที</div>
+            </div>
 
-   <!-- หน้าต่างอ่านหนังสือ (เพิ่มปุ่มส่งคำตอบเรื่องสั้น) -->
+            <!-- 🃏 การ์ดฝั่งขวา: ศัตรู / บอสประจำชั้น -->
+            <div class="card-side" style="width: 30%;">
+                <div class="fantasy-monster-card">
+                    <div id="battleBossName" style="font-weight: bold; font-size: 16px; margin-bottom: 10px; color: #ff3333; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">มอนสเตอร์ประจำชั้น</div>
+                    <div class="card-image-wrapper boss-img-bg" id="battleBossAvatarBox" style="width: 100%; aspect-ratio: 1/1; background: #fff; border-radius: 8px; border: 2px solid #ff3333; overflow: hidden;">
+                         <img id="battleBossAvatar" src="" style="width: 100%; height: 100%; object-fit: contain;">
+                    </div>
+                    <div class="battle-stats" style="margin-top: 15px;">
+                        <div class="hp-text-box" style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px;">
+                            <span style="color: #b366ff;">😈 HP</span> 
+                            <span id="bBossHpText">100 / 100</span>
+                        </div>
+                        <div class="fantasy-progress-bg">
+                            <div id="bBossHpFill" class="fantasy-hp-monster-fill" style="width: 100%;"></div>
+                        </div>
+                        <div style="font-size: 14px; color: #ff3333; font-weight: bold; margin-top: 10px;">⚔️ ATK: <span id="bBossAtkText">10</span></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 🎒 แผงไอเทมกดใช้ด่วนระหว่างการต่อสู้ -->
+        <div style="margin-top: 20px; padding: 12px; background: rgba(0, 0, 0, 0.5); border-radius: 15px; border: 2px dashed #ff9900; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">
+            <div style="font-weight: bold; margin-bottom: 8px; color: #ffcc00; font-size: 14px;">🎒 กระเป๋าเสบียงต่อสู้ฉุกเฉิน</div>
+            <div id="battlePotionContainer" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <!-- ปุ่มน้ำยาจะถูกสร้างตรงนี้อัตโนมัติ -->
+            </div>
+        </div>
+        
+    </div> 
+</div>   <!-- หน้าต่างอ่านหนังสือ (เพิ่มปุ่มส่งคำตอบเรื่องสั้น) -->
     <div id="gameModal" class="modal" style="z-index: 2500;">
         <div class="modal-content" style="max-width: 600px;">
             <h2 id="gTitle" style="color: var(--primary); margin-top: 0;">ภารกิจ</h2>
@@ -591,7 +856,8 @@
 </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyDnlHiCiUy_jp-gwA6mpHGlmMPUXVUiGcS2w3CqWANtjIVvzxNvtPBjPX346wY0WrHag/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxLtbK2vvJqUEXUHywczGNarX1009UNxs_v1xwDIe0fplfkrs0vk4ljTXrtC304MGYC5g/exec";
+
         
         const DEFAULT_PROFILES = ["./images/profile1.png", "./images/profile2.png", "./images/profile3.png", "./images/profile4.png", "./images/profile5.png"];
         const CHAR_MAP = { "B1": "./images/boy1.png", "B2": "./images/boy2.png", "G1": "./images/girl1.png", "G2": "./images/girl2.png" };
@@ -1135,9 +1401,10 @@ let t = q.Type;
                 let mItem = allS.find(s => s.ItemID === curU.equipped.melody);
                 if (mItem && mItem.LayerImage && audio.src !== window.location.origin + mItem.LayerImage.substring(1)) {
                     audio.src = mItem.LayerImage; audio.play().catch(e=>{});
-                }
-            } else { audio.pause(); audio.src = ""; }
-
+                }} else { 
+                audio.pause(); 
+                audio.removeAttribute('src'); 
+            }
 
 // 🌟 6. แสดงการ์ดในแท็บคอลเลกชัน และ อุปกรณ์สวมใส่
     const cardBox = document.getElementById('cardCollectionBox');
@@ -1353,27 +1620,50 @@ let t = q.Type;
             }}
 
        async function syncDB(act="", det="") { 
-            let pay = { 
-                action: "saveUser", 
-                id: curU.id, 
-                name: curU.name, 
-                avatar: curU.avatar, 
-                frame: curU.frame, 
-                points: curU.points, 
-                coins: curU.coins, 
-                className: curU.className, 
-                completedQuests: curU.completedQuests, 
-                inventory: curU.inventory, 
-                equipped: curU.equipped, 
-                activeBuff: curU.activeBuff,
-                highestFloor: curU.highestFloor // 🌟 บรรทัดนี้ที่เพิ่มเข้ามาเพื่อให้บันทึกชั้นที่สูงที่สุด
-            }; 
-            if(act) pay.logData = { action: act, detail: det }; 
-            try { 
-                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type':'application/json'}, body: JSON.stringify(pay) }); 
-            } catch(e){} 
-        }
-        
+    // 🌟 1. อัปเดตสมุดบันทึกชั่วคราว (allU) ในเครื่องคอมพิวเตอร์ให้ทันสมัยตลอดเวลา ป้องกันการดึงข้อมูลเก่ามาบันทึกทับตอนล็อกอิน
+    let localUser = allU.find(x => String(x.UserID || "").trim().toLowerCase() === String(curU.id).trim().toLowerCase());
+    if (localUser) {
+        localUser.DisplayName = curU.name;
+        localUser.Avatar = curU.avatar;
+        localUser.Frame = curU.frame;
+        localUser.TotalPoints = curU.points;
+        localUser.Coins = curU.coins;
+        localUser.ClassName = curU.className;
+        localUser.CompletedQuests = curU.completedQuests.join(",");
+        localUser.Inventory = curU.inventory.join(",");
+        localUser.Equipped = JSON.stringify(curU.equipped);
+        localUser.ActiveBuff = curU.activeBuff;
+        localUser.HighestFloor = curU.highestFloor; // อัปเดตชั้นสูงสุดในความจำเครื่องด้วย
+    }
+
+    // 🌟 2. เตรียมโครงสร้างข้อมูลสำหรับส่งไปบันทึกบน Google Sheets
+    let pay = { 
+        action: "saveUser", 
+        id: curU.id, 
+        name: curU.name, 
+        avatar: curU.avatar, 
+        frame: curU.frame, 
+        points: curU.points, 
+        coins: curU.coins, 
+        className: curU.className, 
+        completedQuests: curU.completedQuests, 
+        inventory: curU.inventory, 
+        equipped: curU.equipped, 
+        activeBuff: curU.activeBuff,
+        highestFloor: curU.highestFloor // แนบข้อมูลชั้นสูงสุดกลับไปเซฟที่ระบบหลังบ้าน
+    }; 
+
+    if(act) pay.logData = { action: act, detail: det }; 
+    
+    try { 
+        await fetch(SCRIPT_URL, { 
+            method: 'POST', 
+            mode: 'no-cors', 
+            headers: {'Content-Type':'application/json'}, 
+            body: JSON.stringify(pay) 
+        }); 
+    } catch(e){} 
+}
        async function buy(id, cost, name, itemType) {
             if(curU.coins >= cost) { 
                 showPopup("ยืนยันการซื้อ", `ใช้ ${cost} Coins แลก ${name}?`, "🛒", true, async () => {
@@ -1816,8 +2106,7 @@ async function handleSpeakerBtn() {
             
             // 3. กลับมาเปิดเพลงพื้นหลัง (ถ้ามี)
             let bgm = document.getElementById('bgMusic'); 
-            if (bgm) {
-                // ใช้ .catch เพื่อป้องกัน Error กรณีเบราว์เซอร์บล็อกการเล่นเสียงอัตโนมัติ
+            if (bgm && curU.equipped && curU.equipped.melody) {
                 let playPromise = bgm.play();
                 if (playPromise !== undefined) {
                     playPromise.catch(error => {
@@ -1827,30 +2116,38 @@ async function handleSpeakerBtn() {
             }
         }
 
-// 🌟 ฟังก์ชันเปิดกล่องแจ้งถามชั้นที่จะเข้าทดสอบ
-        function promptTowerFloor() {
-            Swal.fire({
-                title: '🏰 ปราสาทไม่สิ้นสุด',
-                text: 'กรุณาระบุชั้นที่ต้องการเข้าไปท้าทาย (มินิบอสจะรออยู่ทุกชั้น และบอสใหญ่จะปรากฏตัวทุกชั้นที่ 10)',
-                input: 'number',
-                inputValue: 1,
-                inputAttributes: { min: 1, max: 999 },
-                showCancelButton: true,
-                confirmButtonColor: '#6a1b9a',
-                cancelButtonColor: '#f44336',
-                confirmButtonText: '⚔️ บุกปราสาท!',
-                cancelButtonText: 'ยกเลิก'
-            }).then((result) => {
-                if (result.isConfirmed && result.value) {
-                    let floor = parseInt(result.value);
-                    if (floor > 0) {
-                        openBattleTowerPopup(floor);
-                    } else {
-                        Swal.fire('ข้อผิดพลาด', 'กรุณาระบุชั้นตั้งแต่ชั้นที่ 1 เป็นต้นไปครับ', 'error');
-                    }
-                }
-            });
-        }
+// 🌟 เปิดหน้าต่างเลือกระดับชั้นปราสาท (แบบแฟนตาซี)
+function promptTowerFloor() {
+    // 1. ดึงสถิติชั้นสูงสุดของผู้เล่นมาแสดงผล
+    let maxFloor = curU.highestFloor || 0;
+    document.getElementById('fantasyHighestFloor').innerText = maxFloor > 0 ? `ชั้นที่ ${maxFloor}` : "ยังไม่เคยท้าทาย";
+    
+    // 2. แนะนำตัวเลขชั้นเริ่มต้น (ถ้าเคยเล่นแล้วให้เริ่มที่ชั้นสูงสุด)
+    let suggestFloor = maxFloor > 0 ? maxFloor : 1;
+    document.getElementById('fantasyFloorInput').value = suggestFloor;
+
+    // 3. เปิดแสดงผลหน้าต่าง Popup
+    document.getElementById('fantasyTowerModal').style.display = 'flex';
+}
+
+// 🌟 ปิดหน้าต่างแฟนตาซี
+function closeFantasyTowerModal() {
+    document.getElementById('fantasyTowerModal').style.display = 'none';
+}
+
+// 🌟 ยืนยันการเข้าสู่ปราสาท
+function confirmFantasyTower() {
+    let floorInput = document.getElementById('fantasyFloorInput').value;
+    let floor = parseInt(floorInput);
+    
+    if (floor > 0) {
+        closeFantasyTowerModal(); // ปิดหน้าต่างเลือกชั้น
+        openBattleTowerPopup(floor); // ส่งตัวเลขชั้นไปเปิดหน้าต่างต่อสู้จริง
+    } else {
+        // ใช้ SweetAlert เตือนเบาๆ กรณีพิมพ์ตัวเลขผิด
+        Swal.fire('ข้อผิดพลาด', 'กรุณาระบุชั้นตั้งแต่ชั้นที่ 1 เป็นต้นไปครับ', 'error');
+    }
+}
 
         // 🌟 ดึงรูปภาพและชื่อการ์ดลงสนามต่อสู้
         function openBattleTowerPopup(floor) {
@@ -2482,7 +2779,7 @@ async function usePotionInBattle(itemId, effectType, effectValue) {
     playSFX('Success');
 
     // ส่งไปหักหลังบ้าน Google Sheets
-    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "consumeItem", userId: curU.id, itemId: itemId }) }).catch(e => console.error(e));
+    syncDB("โยนทิ้งไอเทม", itemName);
 }
         // ฟังก์ชันดึงข้อมูลจาก Google Apps Script ของระบบหลัก
         async function loadBattleItems() {
@@ -3042,6 +3339,22 @@ function equipCard(cardId) {
                 }
             })
         }
+// ระบบตรวจจับการสลับแท็บเพื่อพักเสียงเพลง
+        document.addEventListener("visibilitychange", function() {
+            let bgm = document.getElementById('bgMusic');
+            if (!bgm) return;
+            
+            if (document.hidden) {
+                // ถ้าสลับจอ หรือพับจอ ให้หยุดเพลงชั่วคราว
+                bgm.pause();
+            } else {
+                // ถ้ากลับมาที่จอ และเปิดเพลงตั้งไว้ ให้เล่นต่อ
+                if (curU.equipped && curU.equipped.melody) {
+                    bgm.play().catch(e => console.log("รอโต้ตอบกับหน้าจอก่อนเล่นเสียง"));
+                }
+            }
+        });
+
     </script>
 </body>
 </html>
