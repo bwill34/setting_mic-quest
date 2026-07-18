@@ -1511,14 +1511,26 @@ let t = q.Type;
                     }
                 }
 
+                // สร้างรูปแบบดาวตามจำนวนครั้งที่อัปเกรด ถ้าเป็น 0 ให้แสดงข้อความว่างๆ หรือสีเทาเพื่อคงความสูงไว้
+                let visualStars = currentStar > 0 ? '⭐'.repeat(currentStar) : '<span style="color:#ccc; font-size: 12px;">(ยังไม่เบิกพลัง)</span>';
+
                 cardsHtml += `
                 <div style="border: 2px solid ${isEquipped ? '#ff9800' : '#ddd'}; border-radius: 10px; padding: 10px; text-align: center; background: ${isEquipped ? '#fff3e0' : '#fff'}; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                     ${isEquipped ? '<div style="position:absolute; top:-10px; right:-10px; background:#ff9800; color:white; padding:2px 8px; border-radius:10px; font-size:12px; font-weight:bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">สวมใส่อยู่</div>' : ''}
                     
+                    <!-- 🌟 ย้ายดาวมาไว้ด้านบนรูปการ์ด พร้อมจัดให้อยู่ตรงกลาง -->
+                    <div style="color: #f57c00; font-size: 16px; margin-bottom: 8px; min-height: 24px; letter-spacing: 2px;">
+                        ${visualStars}
+                    </div>
+                    
                     <img src="${cardInfo.CardImage}" style="width: 100%; height: 120px; object-fit: contain; border-radius: 5px;">
                     
                     <div style="font-weight: bold; margin: 8px 0 5px 0; font-size: 14px; color: #333;">${cardInfo.CardName}</div>
-                    <div style="color: #f57c00; font-size: 13px; margin-bottom: 5px; font-weight: bold;">⭐ ${currentStar} / ${cardInfo.MaxStars}</div>
+                    
+                    <!-- เปลี่ยนข้อความแสดงระดับดาวด้านล่างให้เป็นตัวเลขธรรมดา เพื่อบอกระดับสูงสุด -->
+                    <div style="color: #777; font-size: 11px; margin-bottom: 5px; font-weight: bold;">
+                        ระดับ: ${currentStar} / ${cardInfo.MaxStars}
+                    </div>
                     
                     <div style="font-size: 12px; margin-bottom: 10px; font-weight: bold;">
                         <span style="color:#d32f2f;">⚔️ ATK: ${showAtk}</span> | 
