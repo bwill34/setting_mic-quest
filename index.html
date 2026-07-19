@@ -806,15 +806,16 @@
                 <div style="margin-bottom: 20px;">
                     <!-- ตัวกรองระดับชั้น -->
 <div style="margin-bottom: 20px;">
-    <select id="lbClassFilter" onchange="renderLeaderboard()" style="padding: 10px; width: 100%; max-width: 300px; border-radius: 10px; border: 2px solid var(--primary); font-family: 'Sarabun';">
-        <option value="all">🏆 ดูอันดับรวมทุกระดับชั้น</option>
-        <option value="ประถมศึกษาปีที่ 1">🏅 เฉพาะชั้น ประถมศึกษาปีที่ 1</option>
-        <option value="ประถมศึกษาปีที่ 2">🏅 เฉพาะชั้น ประถมศึกษาปีที่ 2</option>
-        <option value="ประถมศึกษาปีที่ 3">🏅 เฉพาะชั้น ประถมศึกษาปีที่ 3</option>
-        <option value="ประถมศึกษาปีที่ 4">🏅 เฉพาะชั้น ประถมศึกษาปีที่ 4</option>
-        <option value="ประถมศึกษาปีที่ 5">🏅 เฉพาะชั้น ประถมศึกษาปีที่ 5</option>
-        <option value="ประถมศึกษาปีที่ 6">🏅 เฉพาะชั้น ประถมศึกษาปีที่ 6</option>
-    </select>
+    <select id="lbClassFilter" onchange="renderLeaderboard()" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+    <option value="all">🏆 ทั้งหมด</option>
+    <!-- ค่าใน value ต้องไม่มีคำว่า 'เฉพาะชั้น' และต้องตรงกับคอลัมน์ ClassName ในชีตเป๊ะๆ -->
+    <option value="ประถมศึกษาปีที่ 1">เฉพาะชั้น ประถมศึกษาปีที่ 1</option>
+    <option value="ประถมศึกษาปีที่ 2">เฉพาะชั้น ประถมศึกษาปีที่ 2</option>
+    <option value="ประถมศึกษาปีที่ 3">เฉพาะชั้น ประถมศึกษาปีที่ 3</option>
+    <option value="ประถมศึกษาปีที่ 4">เฉพาะชั้น ประถมศึกษาปีที่ 4</option>
+    <option value="ประถมศึกษาปีที่ 5">เฉพาะชั้น ประถมศึกษาปีที่ 5</option>
+    <option value="ประถมศึกษาปีที่ 6">เฉพาะชั้น ประถมศึกษาปีที่ 6</option>
+</select>
 </div>
                 </div>
 
@@ -1327,99 +1328,90 @@ cardUpgradeConfig = res.cardUpgrades || [];
             });
         }
 
+
 function renderLeaderboard() {
     const lbBox = document.getElementById('leaderboardBox');
     let lbHtml = "";
     
+    // 1. รับค่าจาก Dropdown ตัวกรองระดับชั้น
     let filterEl = document.getElementById('lbClassFilter');
     let filter = filterEl ? filterEl.value : "all";
     
-    // กรองเฉพาะคนที่มี UserID
+    // 2. คัดกรองเฉพาะผู้ใช้ที่มี ID และกรองตามระดับชั้นที่เลือก
     let filteredUsers = [...allU].filter(u => String(u.UserID || "").trim() !== "");
-    
-    // 🌟 1. การกรองชั้นเรียนแบบรัดกุม (ตัดช่องว่างทิ้งทั้งหมดเพื่อป้องกันการพิมพ์เว้นวรรคผิด)
-    if(filter !== "all") {
-        let filterValue = filter.replace(/\s+/g, ''); // ลบช่องว่างออกจากค่าที่เลือก
-        filteredUsers = filteredUsers.filter(u => {
-            let userClass = String(u.ClassName || "").replace(/\s+/g, '');
-            return userClass === filterValue;
-        });
+    if (filter !== "all") {
+        filteredUsers = filteredUsers.filter(u => String(u.ClassName || "").trim() === filter.trim());
     }
 
-    // 🌟 ฟังก์ชันตัวช่วย: ดึง URL รูปภาพจาก รหัสไอเทม (ID)
-    function getItemImageUrl(itemId) {
-        if (!itemId) return '';
-        
-        // ใช้ตัวแปร allS ซึ่งเก็บข้อมูลไอเทมทั้งหมดในระบบ
-        if (typeof allS !== 'undefined') {
-            let item = allS.find(x => x.ItemID === itemId);
-            // ดึง URL รูปภาพจาก LayerImage หรือ Icon ตามที่โค้ดส่วนอื่นใช้
-            return item ? (item.LayerImage || item.Icon || '') : '';
-        }
-        return '';
+    // ตรวจสอบว่ามีข้อมูลนักเรียนหลังกรองหรือไม่
+    if (filteredUsers.length === 0) {
+        lbBox.innerHTML = "<p style='text-align:center; color:#777; margin-top:20px;'>ไม่พบข้อมูลนักเรียนในชั้นที่เลือก</p>";
+        return;
     }
 
+    // 3. แสดงผลตามโหมดที่เลือก
     if (currentLbMode === 'points') {
         // 🏆 โหมดคะแนนผู้เล่น (Exp)
-        filteredUsers.sort((a,b) => (Number(b.TotalPoints)||0) - (Number(a.TotalPoints)||0)).slice(0, 100).forEach((u, i) => {
-            let rank = i + 1;
-            let medalHtml = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
-            let bgStyle = rank === 1 ? 'border: 2px solid #00838f; background: #e0f7fa;' :
-                          rank === 2 ? 'border: 2px solid #9e9e9e; background: #f5f5f5;' :
-                          rank === 3 ? 'border: 2px solid #ff9800; background: #fff3e0;' :
-                          'border: 1px solid #ddd; background: white;';
+        filteredUsers.sort((a,b) => (Number(b.TotalPoints)||0) - (Number(a.TotalPoints)||0)).slice(0, 100).forEach((u, index) => {
+            let rank = index + 1; 
             
-            let avatarSrc = u.Avatar || 'https://via.placeholder.com/50'; 
-            let coins = u.Coins || 0;
-            let maxFloor = u.HighestFloor || 0;
-            let title = u.Title || 'มือใหม่';
+            // จัดการสี เหรียญรางวัล และไฮไลท์ตัวเราเอง
+            let rankDisplay = rank; let cardClass = "lb-card";
+            if(rank === 1) { rankDisplay = "🥇"; cardClass += " top1"; } 
+            else if(rank === 2) { rankDisplay = "🥈"; cardClass += " top2"; } 
+            else if(rank === 3) { rankDisplay = "🥉"; cardClass += " top3"; }
+            if (String(u.UserID) === String(curU.id)) cardClass += " me";
 
-            // 🌟 2. ถอดรหัส JSON เพื่อดึงรหัสเสื้อและกางเกง
-            let eq = {};
-            try {
-                eq = u.Equipped ? (typeof u.Equipped === 'string' ? JSON.parse(u.Equipped) : u.Equipped) : {};
-            } catch(e) {}
+            // 🌟 สร้างระบบแสดงอวาตาร์ซ้อนเลเยอร์ชุดแต่งกาย (ดึงโค้ดมาจากไฟล์ของคุณ)
+            let eq = {}; try { eq = u.Equipped ? JSON.parse(u.Equipped) : {}; } catch(e){}
+            let baseAva = String(u.Avatar || BASE_CHARACTERS[0]);
+            let miniAvaHtml = `<div class="mini-avatar-container">`;
+            
+            if (baseAva.startsWith('http') || baseAva.startsWith('./') || baseAva.includes('.png')) { 
+                miniAvaHtml += `<img src="${baseAva}" class="mini-avatar-img" onerror="this.style.display='none'">`; 
+            } else { 
+                miniAvaHtml += `<div style="font-size:40px; text-align:center; margin-top:10px;">${baseAva}</div>`; 
+            }
+            
+            // วนลูปวาดชุดและไอเทมทับลงไป
+            const layers = ['shoes', 'body_dress', 'body_pants', 'body_shirt', 'face', 'head', 'handheld']; let zi = 2;
+            layers.forEach(l => {
+                if(eq[l]) {
+                    const itemData = allS.find(s => String(s.ItemID) === String(eq[l]));
+                    if(itemData) {
+                        let srcFile = String(itemData.LayerImage || itemData.Icon || "");
+                        if(srcFile.startsWith('http') || srcFile.startsWith('./') || srcFile.includes('.png')) { 
+                            miniAvaHtml += `<img src="${srcFile}" class="mini-layer" style="z-index:${zi};" onerror="this.style.display='none'">`; 
+                        }
+                    }
+                } zi++;
+            });
+            miniAvaHtml += `</div>`;
 
-            // หาลิงก์รูปรหัสไอเทม
-            let shirtImg = getItemImageUrl(eq.body_shirt);
-            let pantsImg = getItemImageUrl(eq.body_pants);
+            // คำนวณยศ (Rank) จากคะแนน
+            let rName = "-"; let uPts = Number(u.TotalPoints) || 0;
+            if(allR.length > 0) { rName = allR[0].RankName; allR.forEach(r => { if(uPts >= Number(r.MinPoints)) rName = r.RankName; }); }
+            let coins = Number(u.Coins) || 0;
 
-            // วางเลเยอร์ชุดทับลงไป
-            let layersHtml = '';
-            if (pantsImg) layersHtml += `<img src="${pantsImg}" style="width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; z-index: 2;" onerror="this.style.display='none'">`;
-            if (shirtImg) layersHtml += `<img src="${shirtImg}" style="width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; z-index: 3;" onerror="this.style.display='none'">`;
-
-            let avatarHtml = `
-            <div style="position: relative; width: 50px; height: 60px; background: #e0f2f1; border-radius: 8px; flex-shrink: 0; overflow: hidden; padding: 2px;">
-                <img src="${avatarSrc}" style="width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; z-index: 1;" onerror="this.style.display='none'">
-                ${layersHtml}
-            </div>`;
-
+            // นำมาประกอบเป็น HTML 1 การ์ด
             lbHtml += `
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; margin-bottom: 10px; border-radius: 12px; ${bgStyle} box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="font-size: 20px; font-weight: bold; width: 30px; text-align: center; color: #555;">${medalHtml}</div>
-                    ${avatarHtml}
-                    <div>
-                        <div style="font-weight: bold; font-size: 16px; color: #333;">${u.DisplayName || "นักเรียน"}</div>
-                        <div style="font-size: 12px; color: #777;">ยศ: ${title}</div>
-                    </div>
+            <div class="${cardClass.trim()}">
+                <div class="lb-rank">${rankDisplay}</div>
+                ${miniAvaHtml}
+                <div class="lb-info">
+                    <div class="lb-name">${u.DisplayName || "นักเรียน"}</div>
+                    <div class="lb-rankname">${u.ClassName || "-"} | ยศ: ${rName}</div>
                 </div>
-                <div style="text-align: right; line-height: 1.4;">
-                    <div style="font-weight: bold; font-size: 16px; color: #00838f;">${Number(u.TotalPoints)||0} Exp</div>
-                    <div style="font-size: 13px; color: #f57c00;">🪙 ${coins} Coins</div>
-                    <div style="font-size: 12px; color: #9c27b0;">🏰 ปราสาท: ชั้นที่ ${maxFloor}</div>
+                <div class="lb-stats">
+                    <div class="lb-score">${uPts} Exp</div>
+                    <div class="lb-coins">🪙 ${coins} Coins</div>
                 </div>
             </div>`;
         });
     } else {
-        // 🏰 โหมดปราสาท
+        // 🏰 โหมดปราสาท: โชว์การ์ดประจำตัว + ดาว + ชั้นที่สูงที่สุด 
         filteredUsers.sort((a,b) => (Number(b.HighestFloor)||0) - (Number(a.HighestFloor)||0)).slice(0, 100).forEach((u, i) => {
-            let eq = {};
-            try {
-                eq = u.Equipped ? (typeof u.Equipped === 'string' ? JSON.parse(u.Equipped) : u.Equipped) : {};
-            } catch(e) {}
-            
+            let eq = {}; try { eq = u.Equipped ? JSON.parse(u.Equipped) : {}; } catch(e){}
             let activeC = (eq.activeCard && typeof cardDbData !== 'undefined') ? cardDbData.find(c=>c.CardID === eq.activeCard) : null;
             let stars = (eq.cardStars && eq.activeCard) ? (eq.cardStars[eq.activeCard]||0) : 0;
             
@@ -1435,25 +1427,20 @@ function renderLeaderboard() {
             lbHtml += `
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; margin-bottom: 10px; border-radius: 12px; ${bgStyle} box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
                 <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="font-size: 20px; font-weight: bold; width: 30px; text-align: center; color: #333;">${medalHtml}</div>
+                    <div style="font-size: 20px; font-weight: bold; width: 30px; text-align: center; color: #333;">
+                        ${medalHtml}
+                    </div>
                     ${activeC ? `<img src="${activeC.CardImage}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">` : `<div style="font-size: 30px; margin-right: 10px;">🃏</div>`}
                     <div>
                         <div style="font-weight: bold; font-size: 16px; color: #333;">${u.DisplayName || "นักเรียน"}</div>
-                        <div style="font-size: 12px; color: #666;">${activeC ? activeC.CardName : 'ยังไม่เลือกการ์ด'} ${starHtml}</div>
+                        <div style="font-size: 12px; color: #666;">${u.ClassName || "-"} | ${activeC ? activeC.CardName : 'ยังไม่เลือกการ์ด'} ${starHtml}</div>
                     </div>
                 </div>
-                <div style="text-align: right; font-weight: bold; font-size: 16px; color: #00838f;">ชั้นที่ ${u.HighestFloor||0}</div>
+                <div style="text-align: right; font-weight: bold; font-size: 16px; color: #00838f;">
+                    ชั้นที่ ${Number(u.HighestFloor)||0}
+                </div>
             </div>`;
         });
-    }
-    
-    // แสดงข้อความเมื่อไม่มีคนในชั้นนั้น
-    if(lbHtml === "") {
-        lbHtml = `
-        <div style="padding: 30px 10px; text-align: center; color: #777; background: #f9f9f9; border-radius: 12px; margin-top: 15px; border: 1px dashed #ccc;">
-            <div style="font-size: 30px; margin-bottom: 10px;">🔍</div>
-            <p style="margin: 0;">ยังไม่มีผู้เล่นใน <strong>${filter !== 'all' ? filter : 'ระบบ'}</strong></p>
-        </div>`;
     }
     
     lbBox.innerHTML = lbHtml;
@@ -1653,15 +1640,23 @@ let t = q.Type;
             let pMelodyGrid = document.getElementById('profMelodyGrid'); if(pMelodyGrid) pMelodyGrid.innerHTML = melodyHtml;
 
             // 🌟 เล่นเพลงอัตโนมัติถ้าเปิดไว้
-            let audio = document.getElementById('bgMusic');
-            if (curU.equipped.melody) {
-                let mItem = allS.find(s => s.ItemID === curU.equipped.melody);
-                if (mItem && mItem.LayerImage && audio.src !== window.location.origin + mItem.LayerImage.substring(1)) {
-                    audio.src = mItem.LayerImage; audio.play().catch(e=>{});
-                }} else { 
-                audio.pause(); 
-                audio.removeAttribute('src'); 
-            }
+let audio = document.getElementById('bgMusic');
+if (curU.equipped.melody) {
+    let mItem = allS.find(s => s.ItemID === curU.equipped.melody);
+    if (mItem && mItem.LayerImage) {
+        // ใช้ getAttribute เพื่อเช็คค่าดิบ ป้องกันการบั๊ก URL ทำให้เพลงเล่นต่อเนียนๆ แบบ Loop
+        if (audio.getAttribute('src') !== mItem.LayerImage) {
+            audio.src = mItem.LayerImage; 
+            audio.volume = 1.0; // รีเซ็ตเสียงเป็น 100%
+            audio.play().catch(e=>{});
+        } else if (audio.paused) {
+            audio.play().catch(e=>{});
+        }
+    }
+} else { 
+    audio.pause(); 
+    audio.removeAttribute('src'); 
+}
 
 // 🌟 6. แสดงการ์ดในแท็บคอลเลกชัน และ อุปกรณ์สวมใส่
     const cardBox = document.getElementById('cardCollectionBox');
@@ -2092,9 +2087,8 @@ else if(itemType === 'potion') {
             }
             
             // แสดงหน้าต่างภารกิจ
-            document.getElementById('gameModal').style.display = "flex"; 
             let bgm = document.getElementById('bgMusic'); 
-            if(bgm) bgm.pause(); // ปิดเพลงพื้นหลังตอนอ่าน
+if(bgm) bgm.volume = 0.5; // ลดเสียงลงเหลือ 50% เพื่อไม่ให้กวนสมาธิ
         }
 
         function toggleMic() { 
@@ -2287,38 +2281,49 @@ async function handleSpeakerBtn() {
 
 
         
-        // 🌟 2. ฟังก์ชันหักไอเทมลำโพง
-        async function consumeSpeakerItem(itemId, userId) {
-            if(typeof sl === "function") sl("กำลังใช้งานไอเทม...");
-            
-            let payload = { action: "consumeItem", userId: userId, itemId: itemId };
-            try {
-                let res = await (await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) })).json();
-                
-                isSpeakerActive = true;
-                
-                // 🔍 อัปเดตหักไอเทมออกจาก array ของผู้เล่นทันที
-                let idx = curU.inventory.indexOf(itemId);
-                if (idx > -1) {
-                    curU.inventory.splice(idx, 1);
-                }
-                
-                if(typeof hl === "function") hl();
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: 'เปิดใช้งานตัวช่วยสำเร็จ!',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-                
-                playTTS(); // เล่นเสียงทันที
-                
-            } catch(e) {
-                if(typeof hl === "function") hl();
-                console.error(e);
-            }
+   async function consumeSpeakerItem(itemId, userId) {
+    if(typeof sl === "function") sl("กำลังใช้งานไอเทม...");
+    
+    let payload = { action: "consumeItem", userId: userId, itemId: itemId };
+    try {
+        let res = await (await fetch(SCRIPT_URL, { 
+            method: 'POST', 
+            body: JSON.stringify(payload) 
+        })).json();
+        
+        isSpeakerActive = true;
+        
+        // 🔍 อัปเดตหักไอเทมออกจาก array ของผู้เล่นทันที
+        let idx = curU.inventory.indexOf(itemId);
+        if (idx > -1) {
+            curU.inventory.splice(idx, 1);
         }
+        
+        // ✨ เพิ่มคำสั่งนี้เข้าไป! เพื่อให้หน้าเว็บวาดกระเป๋าไอเทมใหม่ทันที ✨
+        refreshUI();
+        
+        if(typeof hl === "function") hl();
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'เปิดใช้งานตัวช่วยสำเร็จ!',
+            showConfirmButton: false,
+            timer: 1500
+        });
+        
+        playTTS(); // เล่นเสียงทันที
+        
+    } catch(e) {
+        if(typeof hl === "function") hl();
+        console.error("Fetch Error: ", e);
+        Swal.fire({
+            icon: 'error',
+            title: 'ข้อผิดพลาด',
+            text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่อใช้งานไอเทมได้',
+            confirmButtonColor: '#00838f'
+        });
+    }
+}
         
 
         // 🌟 1. ฟังก์ชันพูดออกเสียง (เพิ่มระบบดักโกง ปิดไมค์อัตโนมัติ)
@@ -2373,16 +2378,18 @@ async function handleSpeakerBtn() {
                 }
             }
             
-            // 3. กลับมาเปิดเพลงพื้นหลัง (ถ้ามี)
-            let bgm = document.getElementById('bgMusic'); 
-            if (bgm && curU.equipped && curU.equipped.melody) {
-                let playPromise = bgm.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(error => {
-                        console.log("พักการเล่นเพลงชั่วคราว");
-                    });
-                }
-            }
+
+// 3. กลับมาคืนค่าเสียงเพลงพื้นหลัง
+let bgm = document.getElementById('bgMusic'); 
+if (bgm) {
+    bgm.volume = 1.0; // คืนระดับเสียงกลับเป็น 100%
+    let playPromise = bgm.play();
+    if (playPromise !== undefined) {
+        playPromise.catch(error => { console.log("พักการเล่นเพลงชั่วคราว"); });
+    }
+}
+
+
         }
 
 // 🌟 เปิดหน้าต่างเลือกระดับชั้นปราสาท (แบบแฟนตาซี)
@@ -2459,11 +2466,13 @@ function confirmFantasyTower() {
             stopBattleTimer();
             currentBattle.isAnimating = true; 
             
-            // เปิดเพลงประกอบฉากหลังหลักให้กลับมาบรรเลงตามปกติ
-            let bgm = document.getElementById('bgMusic');
-            if (bgm && curU.equipped.melody) {
-                bgm.play().catch(e => {});
-            }
+// เปิดเพลงประกอบฉากหลังหลักให้กลับมาบรรเลงตามปกติ 100%
+let bgm = document.getElementById('bgMusic');
+if (bgm && curU.equipped.melody) {
+    bgm.volume = 1.0;
+    bgm.play().catch(e => {});
+}
+
         }
 
 /* =========================================
@@ -2482,33 +2491,7 @@ function confirmFantasyTower() {
       // 🎯 ตัวแปรเก็บไอเทมที่จะโหลดมาจากฐานข้อมูล
         let bossDropTable = [];
 
-        // ฟังก์ชันดึงข้อมูลจาก Google Apps Script ของระบบหลัก
-        async function loadBattleItems() {
-            // URL ของ Apps Script ที่คุณครูให้มา
-            const scriptUrl = "https://script.google.com/macros/s/AKfycbyBxEl71fkgNZ3QUMACs9soxRzMHy8KDWsgw7bgXAyLoRm7bb1mkUnhMkuW7CNLf5I0sw/exec"; 
-            
-            try {
-                const response = await fetch(scriptUrl);
-                const dbData = await response.json();
-                
-                // ถ้าระบบมีข้อมูล battleItems ให้จัดรูปแบบเตรียมไว้สุ่ม
-                if (dbData.battleItems && dbData.battleItems.length > 0) {
-                    bossDropTable = dbData.battleItems.map(item => ({
-                        id: item.ItemID,
-                        name: item.ItemName,
-                        statDesc: item.StatDesc,
-                        bonusAtk: Number(item.BonusATK),
-                        bonusHp: Number(item.BonusHP),
-                        weight: Number(item.DropWeight),
-                        color: item.BorderColor,
-                        imageUrl: item.ImageURL
-                    }));
-                    console.log("✅ โหลดไอเทมบอสจากระบบสำเร็จ!", bossDropTable);
-                }
-            } catch (error) {
-                console.error("❌ โหลดข้อมูลไอเทมล้มเหลว:", error);
-            }
-        }
+      
 
         // สั่งให้ระบบโหลดข้อมูลจากฐานข้อมูลทันทีที่เปิดหน้าเว็บ
         loadBattleItems();
@@ -2525,16 +2508,7 @@ function confirmFantasyTower() {
             return null;
         }
 
-        // ฟังก์ชันสุ่มไอเทมตามน้ำหนัก (Weight)
-        function getRandomDrop() {
-            let totalWeight = bossDropTable.reduce((sum, item) => sum + item.weight, 0);
-            let randomNum = Math.random() * totalWeight;
-            for (let i = 0; i < bossDropTable.length; i++) {
-                if (randomNum < bossDropTable[i].weight) return bossDropTable[i];
-                randomNum -= bossDropTable[i].weight;
-            }
-            return null;
-        }
+        
 
         // =========================================
         // ⏱️ ระบบจับเวลา (Timer Functions)
@@ -3296,89 +3270,6 @@ let currentLbMode = 'points';
             document.getElementById('btnLbTower').className = mode === 'tower' ? 'shop-tab active' : 'shop-tab';
             renderLeaderboard();
         }
-
-        function renderLeaderboard() {
-    const lbBox = document.getElementById('leaderboardBox');
-    let lbHtml = "";
-    let filteredUsers = [...allU];
-
-    if (currentLbMode === 'points') {
-        // 🏆 โหมดคะแนนผู้เล่น (Exp)
-        filteredUsers.sort((a,b) => (Number(b.TotalPoints)||0) - (Number(a.TotalPoints)||0)).forEach((u, i) => {
-            let rank = i + 1;
-            
-            // จัดการสีและเหรียญรางวัลสำหรับ Top 3
-            let medalHtml = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
-            let bgStyle = rank === 1 ? 'border: 2px solid #00838f; background: #e0f7fa;' :
-                          rank === 2 ? 'border: 2px solid #9e9e9e; background: #f5f5f5;' :
-                          rank === 3 ? 'border: 2px solid #ff9800; background: #fff3e0;' :
-                          'border: 1px solid #ddd; background: white;';
-            
-            // ดึงข้อมูลรูปโปรไฟล์ เหรียญ และชั้นปราสาท (ถ้าไม่มีข้อมูลให้เป็นค่าว่างหรือ 0)
-            let avatarSrc = u.Avatar || 'https://via.placeholder.com/50'; 
-            let coins = u.Coins || 0;
-            let maxFloor = u.HighestFloor || 0;
-            let title = u.Title || 'มือใหม่';
-
-            lbHtml += `
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; margin-bottom: 10px; border-radius: 12px; ${bgStyle} box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="font-size: 20px; font-weight: bold; width: 30px; text-align: center; color: #555;">
-                        ${medalHtml}
-                    </div>
-                    <img src="${avatarSrc}" style="width: 50px; height: 60px; object-fit: contain; background: #e0f2f1; border-radius: 8px; padding: 2px;">
-                    <div>
-                        <div style="font-weight: bold; font-size: 16px; color: #333;">${u.DisplayName}</div>
-                        <div style="font-size: 12px; color: #777;">ยศ: ${title}</div>
-                    </div>
-                </div>
-                <div style="text-align: right; line-height: 1.4;">
-                    <div style="font-weight: bold; font-size: 16px; color: #00838f;">${u.TotalPoints} Exp</div>
-                    <div style="font-size: 13px; color: #f57c00;">🪙 ${coins} Coins</div>
-                    <div style="font-size: 12px; color: #9c27b0;">🏰 ปราสาท: ชั้นที่ ${maxFloor}</div>
-                </div>
-            </div>`;
-        });
-    } else {
-        // 🏰 โหมดปราสาท: โชว์การ์ด + ดาว + ชั้นที่สูงที่สุด
-        filteredUsers.sort((a,b) => (Number(b.HighestFloor)||0) - (Number(a.HighestFloor)||0)).forEach((u, i) => {
-            let eq = u.Equipped ? JSON.parse(u.Equipped) : {};
-            let activeC = eq.activeCard ? cardDbData.find(c=>c.CardID === eq.activeCard) : null;
-            let stars = (eq.cardStars && eq.activeCard) ? (eq.cardStars[eq.activeCard]||0) : 0;
-            
-            let rank = i + 1;
-            
-            // 🌟 เพิ่มโค้ดจัดอันดับเหรียญและสีกรอบตรงนี้
-            let medalHtml = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
-            let bgStyle = rank === 1 ? 'border: 2px solid #00838f; background: #e0f7fa;' :
-                          rank === 2 ? 'border: 2px solid #9e9e9e; background: #f5f5f5;' :
-                          rank === 3 ? 'border: 2px solid #ff9800; background: #fff3e0;' :
-                          'border: 1px solid #eee; background: white;';
-            
-            // 🌟 แปลงตัวเลขดาวเป็นรูปดาว ⭐
-            let starHtml = stars > 0 ? '⭐'.repeat(stars) : '<span style="color:#aaa;">(0 ดาว)</span>';
-
-            // 🌟 นำตัวแปร medalHtml และ bgStyle มาใส่ใน HTML
-            lbHtml += `
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; margin-bottom: 10px; border-radius: 12px; ${bgStyle} box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="font-size: 20px; font-weight: bold; width: 30px; text-align: center; color: #333;">
-                        ${medalHtml}
-                    </div>
-                    ${activeC ? `<img src="${activeC.CardImage}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">` : `<div style="font-size: 30px; margin-right: 10px;">🃏</div>`}
-                    <div>
-                        <div style="font-weight: bold; font-size: 16px; color: #333;">${u.DisplayName}</div>
-                        <div style="font-size: 12px; color: #666;">${activeC ? activeC.CardName : 'ยังไม่เลือกการ์ด'} ${starHtml}</div>
-                    </div>
-                </div>
-                <div style="text-align: right; font-weight: bold; font-size: 16px; color: #00838f;">
-                    ชั้นที่ ${u.HighestFloor||0}
-                </div>
-            </div>`;
-        });
-    }
-    lbBox.innerHTML = lbHtml;
-}
 
 function equipCard(cardId) {
             if(!curU.equipped) curU.equipped = {};
