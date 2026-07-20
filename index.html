@@ -929,7 +929,7 @@
             <div class="card-side" style="width: 30%;">
                 <div class="fantasy-monster-card">
                     <div id="battleBossName" style="font-weight: bold; font-size: 16px; margin-bottom: 10px; color: #ff3333; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">มอนสเตอร์ประจำชั้น</div>
-                    <div class="card-image-wrapper boss-img-bg" id="battleBossAvatarBox" style="width: 100%; aspect-ratio: 1/1; background: #fff; border-radius: 8px; border: 2px solid #ff3333; overflow: hidden;">
+                    <div class="card-image-wrapper boss-img-bg" id="battleBossAvatarBox" style="width: 100%; aspect-ratio: 1/1; background: #080808; border-radius: 8px; border: 2px solid #ff3333; overflow: hidden;">
                          <img id="battleBossAvatar" src="" style="width: 100%; height: 100%; object-fit: contain;">
                     </div>
                     <div class="battle-stats" style="margin-top: 15px;">
@@ -1769,18 +1769,19 @@ if (curU.equipped.melody) {
         // 🎒 6.1 โค้ดวาดกล่องอุปกรณ์สวมใส่ 3 ช่อง พร้อมแถบ Total Status
         let equipHtml = `
         <div style="grid-column: 1 / -1; width: 100%; background:#f0f8ff; border:2px dashed #2196f3; padding:15px; border-radius:15px; margin-bottom:20px; text-align:center; box-sizing: border-box; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
-            <h4 style="margin-top:0; color:#1976d2; margin-bottom: 10px;">🎒 อุปกรณ์สวมใส่ปัจจุบัน</h4>
+           <h4 style="margin-top:0; color:#1976d2; margin-bottom: 10px;">ค่า Status ปัจจุบัน</h4>
             
             <!-- ✨ แถบสเตตัสรวม ✨ -->
             <div style="background: white; border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; display: inline-flex; gap: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #bbdefb; flex-wrap: wrap; justify-content: center;">
+<div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="background: #fff3e0; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 16px;">⚔️</div>
+                    <div style="font-size: 15px; font-weight: bold; color: #f57c00;">ATK: ${totalAtk}</div>
+                </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <div style="background: #ffebee; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 16px;">❤️</div>
                     <div style="font-size: 15px; font-weight: bold; color: #d32f2f;">HP: ${totalHp}</div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="background: #fff3e0; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 16px;">⚔️</div>
-                    <div style="font-size: 15px; font-weight: bold; color: #f57c00;">ATK: ${totalAtk}</div>
-                </div>
+
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <div style="background: #e8f5e9; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 16px;">⚡</div>
                     <div style="font-size: 15px; font-weight: bold; color: #388e3c;">CRIT: ${totalCrit}%</div>
