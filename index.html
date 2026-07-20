@@ -3049,16 +3049,29 @@ function winBattle() {
         initBattleFloor(currentBattle.floor + 1);
     });
 }
-        
+     
+
 function updateBattleBagUI() {
     let container = document.getElementById('battlePotionContainer');
     if(!container) return;
     container.innerHTML = ''; // เคลียร์ปุ่มเก่าทิ้งก่อน
 
-    // 1. คัดกรองหาเฉพาะไอเทมประเภท 'potion' ที่นักเรียนมีในกระเป๋า
+    // 1. คัดกรองแบบยืดหยุ่นขึ้น (ดักจับทั้งคำว่า potion, ยา, consumable หรือเช็คจากแหล่งที่มา)
     let userPotions = curU.inventory.filter(itemId => {
-        let pData = allConsumables.find(c => c.ItemID === itemId);
-        return pData && pData.ItemType === 'potion';
+        // หาข้อมูลไอเทมจากทั้งสองแหล่ง
+        let pData = allConsumables.find(c => String(c.ItemID) === String(itemId)) || allS.find(s => String(s.ItemID) === String(itemId));
+        
+        if (!pData) return false; // ถ้าไม่มีข้อมูลในฐานข้อมูลเลย ให้ข้ามไป
+
+        // ดึงประเภทไอเทมมาตรวจสอบ (รองรับหัวคอลัมน์ทั้ง ItemType และ Type)
+        let itemType = String(pData.ItemType || pData.Type || "").trim().toLowerCase();
+        
+        // ถ้าเป็นไอเทมที่อยู่ในตาราง allConsumables ถือว่าเป็นยาทั้งหมด 
+        // หรือ ถ้าในชีต Shop ระบุประเภทว่า potion, ยา, consumable ให้ดึงมาแสดงด้วย
+        let isConsumableData = allConsumables.some(c => String(c.ItemID) === String(itemId));
+        let isPotionType = itemType.includes('potion') || itemType.includes('ยา') || itemType.includes('consumable');
+
+        return isConsumableData || isPotionType;
     });
 
     // 2. นับจำนวนว่าแต่ละ ID มีกี่ขวด
@@ -3075,24 +3088,40 @@ function updateBattleBagUI() {
 
     // 4. วนลูปสร้างปุ่มตามชนิดของน้ำยาที่มี
     for(let id in potionCounts) {
-        let pData = allConsumables.find(c => c.ItemID === id);
+        let pData = allConsumables.find(c => String(c.ItemID) === String(id)) || allS.find(s => String(s.ItemID) === String(id));
         let btn = document.createElement('button');
         btn.className = 'btn';
         
-        // เช็คชื่อ ID ว่ามีคำว่า HP หรือ ATK เพื่อกำหนดสีปุ่มให้ตรงกัน
-        if(id.includes('HP')) {
-            btn.style = 'background: white; border: 2px solid #4caf50; color: #2e7d32; flex: 1; padding: 8px; min-width: 120px;';
-            btn.innerHTML = `🧪 ${pData.ItemName} (${potionCounts[id]})`;
-            btn.onclick = () => usePotionInBattle(id, 'HP', Number(pData.EffectValue));
-        } else if (id.includes('ATK')) {
-            btn.style = 'background: white; border: 2px solid #ff9800; color: #e65100; flex: 1; padding: 8px; min-width: 120px;';
-            btn.innerHTML = `🔥 ${pData.ItemName} (${potionCounts[id]})`;
-            btn.onclick = () => usePotionInBattle(id, 'ATK', Number(pData.EffectValue));
+        let itemName = pData.ItemName || "น้ำยาบัฟ";
+        let upperId = String(id).toUpperCase();
+        let upperName = itemName.toUpperCase();
+
+        // ดึงค่าพลัง Effect ถ้าไม่ได้ระบุไว้ในฐานข้อมูล ให้ระบบช่วยดึงตัวเลขจากชื่อไอเทมแทน
+        let effectVal = Number(pData.EffectValue);
+        if (isNaN(effectVal) || effectVal === 0) {
+             let numMatch = String(pData.ItemName + " " + (pData.ItemDesc || "")).match(/\d+/);
+             effectVal = numMatch ? parseInt(numMatch[0]) : 20; 
+        }
+        
+        // เช็คชื่อ ID หรือชื่อไอเทม ว่ามีคำว่า HP หรือ ATK เพื่อกำหนดสีปุ่มและไอคอนให้ตรงกัน
+        if(upperId.includes('HP') || upperName.includes('HP')) {
+            btn.style = 'background: white; border: 2px solid #4caf50; color: #2e7d32; flex: 1; padding: 8px; min-width: 120px; font-family: "Sarabun"; font-weight: bold; border-radius: 10px; margin: 3px; cursor: pointer;';
+            btn.innerHTML = `❤️ ${itemName} (${potionCounts[id]})`;
+            btn.onclick = () => usePotionInBattle(id, 'HP', effectVal);
+        } else if (upperId.includes('ATK') || upperName.includes('ATK') || upperId.includes('DMG')) {
+            btn.style = 'background: white; border: 2px solid #ff9800; color: #e65100; flex: 1; padding: 8px; min-width: 120px; font-family: "Sarabun"; font-weight: bold; border-radius: 10px; margin: 3px; cursor: pointer;';
+            btn.innerHTML = `⚔️ ${itemName} (${potionCounts[id]})`;
+            btn.onclick = () => usePotionInBattle(id, 'ATK', effectVal);
+        } else {
+            btn.style = 'background: white; border: 2px solid #2196f3; color: #1565c0; flex: 1; padding: 8px; min-width: 120px; font-family: "Sarabun"; font-weight: bold; border-radius: 10px; margin: 3px; cursor: pointer;';
+            btn.innerHTML = `🧪 ${itemName} (${potionCounts[id]})`;
+            btn.onclick = () => usePotionInBattle(id, 'HP', effectVal); 
         }
         
         container.appendChild(btn);
     }
 }
+
 
  function loseBattle() {
     stopBattleTimer(); // หยุดเวลาเมื่อแพ้
@@ -3121,11 +3150,12 @@ function updateBattleBagUI() {
     });
 }
 
+
 async function usePotionInBattle(itemId, effectType, effectValue) {
     if(currentBattle.isAnimating || currentBattle.playerHp <= 0) return;
 
     let idx = curU.inventory.indexOf(itemId);
-    if (idx > -1) curU.inventory.splice(idx, 1); // หักออกจากกระเป๋าทันที
+    if (idx > -1) curU.inventory.splice(idx, 1); // หักไอเทมออกจากกระเป๋าทันที
 
     if (effectType === 'HP') {
         currentBattle.playerHp += effectValue;
@@ -3140,8 +3170,12 @@ async function usePotionInBattle(itemId, effectType, effectValue) {
     updateBattleBagUI(); // สั่งรีเฟรชปุ่มใหม่ (จำนวนจะลดลง ถ้าหมดปุ่มจะหายไป)
     playSFX('Success');
 
-    // ส่งไปหักหลังบ้าน Google Sheets
-    syncDB("โยนทิ้งไอเทม", itemName);
+    // 🌟 ค้นหาชื่อไอเทมสำหรับส่งไปบันทึกลงฐานข้อมูล เพื่อป้องกันบั๊กตัวแปร itemName หาย
+    let itemObj = allConsumables.find(c => String(c.ItemID) === String(itemId)) || allS.find(s => String(s.ItemID) === String(itemId));
+    let iName = itemObj ? itemObj.ItemName : itemId;
+
+    // ส่งข้อมูลไปหักหลังบ้าน Google Sheets อย่างถูกต้อง
+    syncDB("ใช้ไอเทมต่อสู้", iName);
 }
         // ฟังก์ชันดึงข้อมูลจาก Google Apps Script ของระบบหลัก
         async function loadBattleItems() {
