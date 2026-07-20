@@ -1423,7 +1423,7 @@ function renderLeaderboard() {
             else if(rank === 3) { rankDisplay = "🥉"; cardClass += " top3"; }
             if (String(u.UserID) === String(curU.id)) cardClass += " me";
 
-            // 🌟 สร้างระบบแสดงอวาตาร์ซ้อนเลเยอร์ชุดแต่งกาย (ดึงโค้ดมาจากไฟล์ของคุณ)
+            // 🌟 สร้างระบบแสดงอวาตาร์ซ้อนเลเยอร์ชุดแต่งกาย
             let eq = {}; try { eq = u.Equipped ? JSON.parse(u.Equipped) : {}; } catch(e){}
             let baseAva = String(u.Avatar || BASE_CHARACTERS[0]);
             let miniAvaHtml = `<div class="mini-avatar-container">`;
@@ -1434,8 +1434,17 @@ function renderLeaderboard() {
                 miniAvaHtml += `<div style="font-size:40px; text-align:center; margin-top:10px;">${baseAva}</div>`; 
             }
             
-            // วนลูปวาดชุดและไอเทมทับลงไป
-            const layers = ['shoes', 'body_dress', 'body_pants', 'body_shirt', 'face', 'head', 'handheld']; let zi = 2;
+            // 🔥 [แก้ไขตรงนี้] ตรวจสอบเงื่อนไขการใส่ชุดเต็มตัว
+            let layers = [];
+            if (eq['full_body']) {
+                // ถ้าใส่ชุด full_body ให้วาดชุดเต็มตัว และข้ามการวาด เสื้อ กางเกง และกระโปรง
+                layers = ['shoes', 'full_body', 'face', 'head', 'handheld'];
+            } else {
+                // ถ้าเป็นการแต่งตัวปกติ (แยกชิ้น)
+                layers = ['shoes', 'body_dress', 'body_pants', 'body_shirt', 'face', 'head', 'handheld'];
+            }
+
+            let zi = 2;
             layers.forEach(l => {
                 if(eq[l]) {
                     const itemData = allS.find(s => String(s.ItemID) === String(eq[l]));
@@ -1506,8 +1515,6 @@ function renderLeaderboard() {
     
     lbBox.innerHTML = lbHtml;
 }
-
-
         // 🌟 อัปเกรดระบบเพื่อความเสถียรป้องกัน JS Crash
         function refreshUI() {
             if (!curU.id) return; 
@@ -3336,122 +3343,6 @@ let currentLbMode = 'points';
             renderLeaderboard();
         }
 
-function equipCard(cardId) {
-            if(!curU.equipped) curU.equipped = {};
-            
-            // 🌟 เช็คว่าถ้าเป็นการ์ดใบใหม่ ให้ถอดอุปกรณ์เดิมเข้ากระเป๋าให้หมด
-            if (curU.equipped.activeCard && curU.equipped.activeCard !== cardId) {
-                let unequippedItems = [];
-                if (curU.equipped.equipBook) { curU.inventory.push(curU.equipped.equipBook); unequippedItems.push("หนังสือ"); delete curU.equipped.equipBook; }
-                if (curU.equipped.equipStationery) { curU.inventory.push(curU.equipped.equipStationery); unequippedItems.push("เครื่องเขียน"); delete curU.equipped.equipStationery; }
-                if (curU.equipped.equipBackpack) { curU.inventory.push(curU.equipped.equipBackpack); unequippedItems.push("กระเป๋า"); delete curU.equipped.equipBackpack; }
-                
-                if (unequippedItems.length > 0) {
-                    Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'ถอด ' + unequippedItems.join(", ") + ' เข้ากระเป๋าแล้ว', showConfirmButton: false, timer: 2000 });
-                }
-            }
-
-            curU.equipped.activeCard = cardId;
-            refreshUI();
-            syncDB("เปลี่ยนการ์ด", `สวมใส่การ์ด ${cardId}`);
-        }
-
-// 🎨 ฟังก์ชันวาดช่องสวมใส่ 1 ช่อง
-        function renderEquipSlot(slotVar, slotName, equipTypeStr) {
-            let itemId = (curU.equipped && curU.equipped[slotVar]) ? curU.equipped[slotVar] : null;
-            
-            if (itemId) {
-                // ถ้ามีไอเทมใส่อยู่
-                let eq = (typeof allCardEquips !== 'undefined') ? allCardEquips.find(e => String(e.EquipID) === String(itemId)) : null;
-                if (eq) {
-                    return `
-                    <div onclick="handleEquipClick('${slotVar}', '${slotName}', '${equipTypeStr}')" style="cursor:pointer; background:white; border:2px solid #4caf50; border-radius:10px; width:80px; height:80px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; box-shadow:0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s;">
-                        <img src="${eq.ImageURL}" style="width:45px; height:45px; object-fit:contain;">
-                        <div style="font-size:10px; font-weight:bold; margin-top:2px; color:#2e7d32; text-align:center; line-height:1.2;">${eq.EquipName}</div>
-                    </div>`;
-                }
-            }
-            // ถ้าช่องว่างเปล่า
-            return `
-            <div onclick="handleEquipClick('${slotVar}', '${slotName}', '${equipTypeStr}')" style="cursor:pointer; background:#fff; border:2px dashed #bbb; border-radius:10px; width:80px; height:80px; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: background 0.2s;">
-                <div style="font-size:24px; color:#bbb;">+</div>
-                <div style="font-size:11px; color:#888; margin-top:2px;">ใส่${slotName}</div>
-            </div>`;
-        }
-
-        // ⚙️ ฟังก์ชันจัดการเมื่อคลิกที่ช่องอุปกรณ์ (สวมใส่ / ถอด)
-        function handleEquipClick(slotVar, slotName, equipTypeStr) {
-            if (!curU.equipped) curU.equipped = {};
-
-            if (curU.equipped[slotVar]) {
-                // 🛑 กรณีช่องมีไอเทมอยู่แล้ว -> ถามว่าจะถอดไหม?
-                let eqId = curU.equipped[slotVar];
-                let eqData = allCardEquips.find(e => String(e.EquipID) === String(eqId));
-                
-                Swal.fire({
-                    title: `ถอด ${slotName}?`,
-                    html: `<img src="${eqData.ImageURL}" style="width:80px; height:80px; object-fit:contain; margin-bottom:10px;"><br>คุณต้องการถอด <b>${eqData.EquipName}</b> กลับเข้ากระเป๋าหรือไม่?`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#e53935',
-                    confirmButtonText: 'ถอดไอเทม',
-                    cancelButtonText: 'ยกเลิก'
-                }).then((res) => {
-                    if (res.isConfirmed) {
-                        curU.inventory.push(eqId); // เอาคืนเข้ากระเป๋า
-                        delete curU.equipped[slotVar]; // ลบออกจากช่องสวมใส่
-                        refreshUI();
-                        syncDB("ถอดอุปกรณ์", `ถอด ${eqData.EquipName}`);
-                        Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'ถอดเข้ากระเป๋าแล้ว', showConfirmButton: false, timer: 1500});
-                    }
-                });
-
-            } else {
-                // 🟢 กรณีช่องว่างเปล่า -> โชว์ของในกระเป๋าให้เลือกใส่
-                let available = curU.inventory.filter(id => {
-                    let eq = allCardEquips.find(e => String(e.EquipID) === String(id));
-                    return eq && eq.EquipType.toLowerCase() === equipTypeStr.toLowerCase();
-                });
-                
-                if (available.length === 0) {
-                    Swal.fire('กระเป๋าว่างเปล่า', `คุณไม่มีไอเทมประเภท <b>${slotName}</b> ในกระเป๋าเลย ลองไปหาซื้อจากร้านค้าดูนะ!`, 'info');
-                    return;
-                }
-                
-                // กรองไอเทมที่ซ้ำกันออก เพื่อแสดงแบบละ 1 ชิ้นพร้อมบอกจำนวน
-                let uniqueAvailable = [...new Set(available)];
-                let htmlOptions = '<div style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:15px;">';
-                
-                uniqueAvailable.forEach(id => {
-                    let eq = allCardEquips.find(e => String(e.EquipID) === String(id));
-                    let count = available.filter(x => x === id).length;
-                    
-                    let statText = "";
-                    if(Number(eq.BonusATK)>0) statText += `<span style="color:#d32f2f;">ATK +${eq.BonusATK}</span><br>`;
-                    if(Number(eq.BonusHP)>0) statText += `<span style="color:#388e3c;">HP +${eq.BonusHP}</span><br>`;
-                    if(Number(eq.CritRate)>0) statText += `<span style="color:#f57c00;">CRIT +${eq.CritRate}%</span>`;
-
-                    htmlOptions += `
-                        <div onclick="processEquipItem('${slotVar}', '${id}')" style="border:2px solid #ddd; border-radius:10px; padding:10px; cursor:pointer; width:120px; transition: border 0.2s;">
-                            <img src="${eq.ImageURL}" style="width:50px; height:50px; object-fit:contain;">
-                            <div style="font-size:12px; font-weight:bold; margin-top:5px; height:30px; overflow:hidden;">${eq.EquipName}</div>
-                            <div style="font-size:11px; margin-top:5px; line-height:1.2;">${statText}</div>
-                            <div style="font-size:11px; color:#fff; background:#555; border-radius:10px; padding:2px 0; margin-top:8px;">มี ${count} ชิ้น</div>
-                        </div>
-                    `;
-                });
-                htmlOptions += '</div>';
-                
-                Swal.fire({
-                    title: `เลือกใส่ ${slotName}`,
-                    html: htmlOptions,
-                    showConfirmButton: false,
-                    showCancelButton: true,
-                    cancelButtonText: 'ปิด',
-                    width: '600px'
-                });
-            }
-        }
 
         // ⚙️ ฟังก์ชันทำงานเมื่อกดเลือกไอเทมที่จะใส่
         window.processEquipItem = function(slotVar, id) {
