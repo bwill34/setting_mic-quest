@@ -1054,7 +1054,7 @@
         const CHAR_MAP = { "B1": "./images/boy1.png", "B2": "./images/boy2.png", "G1": "./images/girl1.png", "G2": "./images/girl2.png" };
         const BASE_CHARACTERS = Object.values(CHAR_MAP);
 	let isSpeakerActive = false;
-        let allQ = [], allS = [], allU = [], allR = [], allClasses = [], allSettings = [], allGacha = [], allTowerWords = [], allConsumables = [];
+        let allQ = [], allS = [], allU = [], allR = [], allClasses = [], allSettings = [], allGacha = [], allTowerWords = [], allConsumables = [];allCardEquips = [];
         let curU = { id: "", name: "", avatar: BASE_CHARACTERS[0], avatarId: "B1", frame: "frame-none", points: 0, coins: 0, className: "", completedQuests: [], inventory: [], equipped: {pos:{char:null,bg:null,partner:null}, profilePic: DEFAULT_PROFILES[0], frameItem: ""}, activeBuff: "" };
         let tempCreationAvatar = BASE_CHARACTERS[0]; let isWardrobeMoveMode = true; 
         
@@ -1320,19 +1320,74 @@ cardUpgradeConfig = res.cardUpgrades || [];
                 if(type === 'costume' && (sType !== 'costume' && sType !== 'avatar' && sType !== 'frame')) return;
                 if(type === 'box' && sType !== 'box') return;
                 if(type === 'buff' && !sType.startsWith('buff')) return;
-		if(type !== 'all' && type !== 'costume' && type !== 'buff' && type !== 'box' && type !== 'real' && type !== 'card' && sType !== type) return;
-                if(type === 'real' && sType !== 'real') return; // 🌟 เพิ่มบรรทัดนี้
-                if(type !== 'all' && type !== 'costume' && type !== 'buff' && type !== 'box' && type !== 'real' && sType !== type) return; // 🌟 เติม type !== 'real' เข้าไปในวงเล็บ
+                if(type === 'card' && sType !== 'card') return;
+                if(type === 'real' && sType !== 'real') return;
+                if(type !== 'all' && type !== 'costume' && type !== 'buff' && type !== 'box' && type !== 'real' && type !== 'card' && sType !== type) return;
                 
                 let isOwned = curU.inventory.includes(itemId); let btnHtml = "";
                 if(isOwned && (sType === 'costume' || sType === 'avatar' || sType === 'frame')) { btnHtml = `<button class="btn btn-disabled" style="width:100%;">มีชิ้นนี้แล้ว</button>`; } 
                 else { btnHtml = `<button class="btn btn-secondary" style="width:100%;" onclick="buy('${itemId}',${s.PointsRequired},'${s.ItemName}','${sType}')">ซื้อ (${s.PointsRequired} Coins)</button>`; }
                 
                 let iconSrc = String(s.Icon || "");
-                let imgHtml = iconSrc.startsWith("http") || iconSrc.startsWith("./") || iconSrc.includes(".png") ? `<img src="${iconSrc}" style="width:80px;height:80px;object-fit:contain;margin:10px;" onerror="this.style.display='none'">` : `<div style="font-size:60px;margin:10px;">${iconSrc}</div>`;
+                // เพิ่ม cursor:pointer และ event onclick เพื่อเรียกดูรายละเอียด
+                let imgHtml = iconSrc.startsWith("http") || iconSrc.startsWith("./") || iconSrc.includes(".png") 
+                    ? `<img src="${iconSrc}" style="width:80px;height:80px;object-fit:contain;margin:10px; cursor:pointer;" onerror="this.style.display='none'" onclick="showItemDetail('${itemId}')">` 
+                    : `<div style="font-size:60px;margin:10px; cursor:pointer;" onclick="showItemDetail('${itemId}')">${iconSrc}</div>`;
+                
                 shopGrid.innerHTML += `<div class="card">${imgHtml}<h3 style="margin-bottom:15px; font-size:16px;">${s.ItemName}</h3>${btnHtml}</div>`;
             });
         }
+
+        // ฟังก์ชันใหม่: แสดง Popup รายละเอียดไอเทม
+        window.showItemDetail = function(itemId) {
+            let s = allS.find(x => String(x.ItemID) === String(itemId));
+            if(!s) return;
+            
+            let title = s.ItemName;
+            let iconSrc = String(s.Icon || "");
+            let imgHtml = iconSrc.startsWith("http") || iconSrc.startsWith("./") || iconSrc.includes(".png") 
+                ? `<img src="${iconSrc}" style="width:100px;height:100px;object-fit:contain;margin-bottom:15px; border-radius:10px; border:2px solid #ccc;">` 
+                : `<div style="font-size:80px;margin-bottom:15px;">${iconSrc}</div>`;
+            
+            let detailsHtml = `${imgHtml}`;
+            
+            // ตรวจสอบว่าเป็นการ์ดตัวละครหรือไม่
+            let cardObj = (typeof cardDbData !== 'undefined') ? cardDbData.find(c => String(c.CardID) === String(itemId)) : null;
+            if (cardObj) {
+                detailsHtml += `<div style="text-align:left; background:#f0f8ff; padding:15px; border-radius:10px; border:1px dashed #2196f3; margin-top:10px;">
+                    <div style="color:#d32f2f; font-size:16px; margin-bottom:5px;"><b>⚔️ ATK (พื้นฐาน):</b> ${cardObj.BaseATK}</div>
+                    <div style="color:#388e3c; font-size:16px;"><b>❤️ HP (พื้นฐาน):</b> ${cardObj.BaseHP}</div>
+                    <div style="color:#777; margin-top:10px; font-size:13px; text-align:center;">(สามารถอัปเกรดดาวเพื่อเพิ่มพลังได้อีก)</div>
+                </div>`;
+            }
+            
+            // ตรวจสอบว่าเป็นอุปกรณ์สวมใส่หรือไม่
+            let eqObj = (typeof allCardEquips !== 'undefined') ? allCardEquips.find(e => String(e.EquipID) === String(itemId)) : null;
+            if (eqObj) {
+                detailsHtml += `<div style="text-align:left; background:#f9f9f9; padding:15px; border-radius:10px; border:1px dashed #ff9800; margin-top:10px;">`;
+                if(Number(eqObj.BonusATK) > 0) detailsHtml += `<div style="color:#d32f2f; font-size:16px; margin-bottom:5px;"><b>⚔️ พลังโจมตี:</b> +${eqObj.BonusATK}</div>`;
+                if(Number(eqObj.BonusHP) > 0) detailsHtml += `<div style="color:#388e3c; font-size:16px; margin-bottom:5px;"><b>❤️ พลังชีวิต:</b> +${eqObj.BonusHP}</div>`;
+                if(Number(eqObj.CritRate) > 0) detailsHtml += `<div style="color:#f57c00; font-size:16px;"><b>⚡ คริติคอล:</b> +${eqObj.CritRate}%</div>`;
+                detailsHtml += `</div>`;
+            }
+            
+            // ถ้าเป็นของใช้งานทั่วไป (บัฟ, กล่องสุ่ม, ฯลฯ)
+            if (!cardObj && !eqObj) {
+                let typeName = s.ItemType === 'costume' ? 'ชุดแต่งกาย' : s.ItemType === 'buff' ? 'บัฟพิเศษ' : s.ItemType === 'box' ? 'กล่องสุ่ม' : s.ItemType === 'real' ? 'ของรางวัลจริง' : s.ItemType;
+                detailsHtml += `<div style="color:#555; font-size:14px; margin-top:10px; background:#f5f5f5; padding:10px; border-radius:8px;">
+                    <b>หมวดหมู่:</b> ${typeName}
+                </div>`;
+                if (s.ItemDesc) detailsHtml += `<div style="color:#444; font-size:14px; margin-top:5px;">${s.ItemDesc}</div>`;
+            }
+
+            Swal.fire({
+                title: `<span style="color:#00838f;">${title}</span>`,
+                html: detailsHtml,
+                confirmButtonText: 'ปิดหน้าต่าง',
+                confirmButtonColor: '#00838f',
+                width: '400px'
+            });
+        };
 
 
 function renderLeaderboard() {
@@ -1667,7 +1722,6 @@ if (curU.equipped.melody) {
 // 🌟 6. แสดงการ์ดในแท็บคอลเลกชัน และ อุปกรณ์สวมใส่
     const cardBox = document.getElementById('cardCollectionBox');
     if (cardBox && typeof cardDbData !== 'undefined') {
-        
         // 🧮 6.0 คำนวณสเตตัสรวมทั้งหมด (การ์ด + ดาว + ไอเทม)
         if (!curU.equipped) curU.equipped = {};
         let activeCardId = curU.equipped.activeCard || null;
@@ -1677,15 +1731,15 @@ if (curU.equipped.melody) {
         if (activeCardId) {
             let cardData = cardDbData.find(c => String(c.CardID) === String(activeCardId));
             if (cardData) {
-                totalAtk = parseInt(cardData.BaseATK || 0);
-                totalHp = parseInt(cardData.BaseHP || 0);
+                totalAtk = Number(cardData.BaseATK) || 0;
+                totalHp = Number(cardData.BaseHP) || 0;
                 
                 let currentStar = (curU.equipped.cardStars && curU.equipped.cardStars[activeCardId]) ? parseInt(curU.equipped.cardStars[activeCardId]) : 0;
                 if (currentStar > 0 && typeof cardUpgradeConfig !== 'undefined') {
                     let starStat = cardUpgradeConfig.find(u => String(u.CardID) === String(activeCardId) && parseInt(u.TargetStar) === currentStar);
                     if (starStat) {
-                        totalAtk = parseInt(starStat.NewATK || totalAtk);
-                        totalHp = parseInt(starStat.NewHP || totalHp);
+                        totalAtk = Number(starStat.NewATK) || totalAtk;
+                        totalHp = Number(starStat.NewHP) || totalHp;
                     }
                 }
             }
@@ -1697,9 +1751,9 @@ if (curU.equipped.melody) {
                 if (curU.equipped[slot]) {
                     let eqData = allCardEquips.find(e => String(e.EquipID) === String(curU.equipped[slot]));
                     if (eqData) {
-                        totalAtk += parseInt(eqData.BonusATK || 0);
-                        totalHp += parseInt(eqData.BonusHP || 0);
-                        totalCrit += parseInt(eqData.CritRate || 0);
+                        totalAtk += Number(eqData.BonusATK) || 0;
+                        totalHp += Number(eqData.BonusHP) || 0;
+                        totalCrit += Number(eqData.CritRate) || 0;
                     }
                 }
             });
@@ -2047,6 +2101,10 @@ else if(itemType === 'potion') {
         
         // 🌟 แทนที่ฟังก์ชัน openGame() เดิมด้วยอันนี้
         function openGame(id) { 
+
+console.log("🟢 [Debug 1] กดปุ่มแล้ว! รหัสภารกิจ (ID) ที่ส่งมาคือ:", id);
+
+  console.log("📦 [Debug 2] ข้อมูลภารกิจที่ดึงมาได้:", aQ);
             aQ = allQ.find(x => String(x.QuestID) === String(id)); 
             
             // 🌟 1. ระบบสะกดคำ (แยกคำแสดงผล กับ คำอ่าน ด้วยเครื่องหมาย =)
@@ -2068,13 +2126,13 @@ else if(itemType === 'potion') {
 
             // 🌟 2. สั่งให้ไมค์ฟังภาษาตามที่ครูตั้งไว้ (เช็คจาก _en)
             if (rec) {
-                rec.lang = aQ.Type.includes('_en') ? 'en-US' : 'th-TH'; 
+                rec.lang = aQ.Type.includes('_en') ? 'en-US' : 'th-TH';
             }
             
             
             // 🌟 3. เช็คเงื่อนไขแสดง "ปุ่มลำโพงตัวช่วย" (โชว์เมื่อเป็นภาษาอังกฤษ)
             isSpeakerActive = false; 
-            let isEnglish = aQ.Type.includes('_en');
+           let isEnglish = aQ.Type.includes('_en');
             let spkBtn = document.getElementById('speakerBtn');
             if (spkBtn) {
                 spkBtn.style.display = isEnglish ? "inline-block" : "none";
@@ -2091,7 +2149,7 @@ else if(itemType === 'potion') {
                 updateQuestView(""); 
                 document.getElementById('finishStoryBtn').style.display = "none";
             }
-            
+            document.getElementById('gameModal').style.display = 'flex'; // ✨ เพิ่มบรรทัดนี้เพื่อเปิดหน้าต่าง
             // แสดงหน้าต่างภารกิจ
             let bgm = document.getElementById('bgMusic'); 
 if(bgm) bgm.volume = 0.5; // ลดเสียงลงเหลือ 50% เพื่อไม่ให้กวนสมาธิ
@@ -2618,15 +2676,15 @@ if (bgm && curU.equipped.melody) {
                 }
             }
             
-            // 🌟 4. บวกโบนัสจากอุปกรณ์สวมใส่ทั้ง 3 ช่อง
+          // 🌟 4. บวกโบนัสจากอุปกรณ์สวมใส่ทั้ง 3 ช่อง
             if (curU.equipped && typeof allCardEquips !== 'undefined') {
                 ['equipBook', 'equipStationery', 'equipBackpack'].forEach(slot => {
                     if (curU.equipped[slot]) {
                         let eqData = allCardEquips.find(e => String(e.EquipID) === String(curU.equipped[slot]));
                         if (eqData) {
-                            pAtk += Number(eqData.BonusATK || 0);
-                            pHp += Number(eqData.BonusHP || 0);
-                            pCrit += Number(eqData.CritRate || 0);
+                            pAtk += Number(eqData.BonusATK) || 0;
+                            pHp += Number(eqData.BonusHP) || 0;
+                            pCrit += Number(eqData.CritRate) || 0;
                         }
                     }
                 });
