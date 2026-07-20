@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - อัศวินนักอ่าน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #eceff1; padding: 20px; color: #333; }
+        .container { max-width: 950px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .nav-tabs { display: flex; flex-wrap: wrap; background: #ffe0b2; border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+        .tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; font-weight: bold; color: #d84315; min-width: 110px;}
+        .tab.active { background: #ffccbc; border-bottom: 4px solid #d84315; }
+        .tab-content { display: none; } .tab-content.active { display: block; }
+        .form-group { margin-bottom: 20px; } label { font-weight: bold; margin-bottom: 5px; display: block; }
+        input[type="text"], input[type="number"], select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-family: 'Sarabun'; }
+        .btn { background: #2e7d32; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; } .btn:hover { background: #1b5e20; }
+        #loading { display: none; text-align: center; color: #1976d2; font-weight: bold; padding: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; } th, td { border: 1px solid #ddd; padding: 10px; text-align: center;} th { background: #00838f; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .info-box { background: #e8f5e9; border-left: 4px solid #4caf50; padding: 10px; margin-bottom: 15px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #d84315;">👨‍🏫 ระบบควบคุมเกมอัศวินนักอ่าน</h1>
+        <div class="nav-tabs">
+            <div class="tab" onclick="switchTab('tabRedeem', this)">🛍️ แลกรางวัล</div>
+            <div class="tab active" onclick="switchTab('tabUsers', this)">👥 นักเรียน</div>
+            <div class="tab" onclick="switchTab('tabQuest', this)">📝 ภารกิจ</div>
+            <div class="tab" onclick="switchTab('tabShop', this)">🎁 ร้านค้า</div>
+            <div class="tab" onclick="switchTab('tabGacha', this)">🎲 กล่องสุ่ม</div>
+            <div class="tab" onclick="switchTab('tabCoupon', this)">🎟️ คูปอง</div>
+            <div class="tab" onclick="switchTab('tabRank', this)">🏅 ยศ</div>
+            <div class="tab" onclick="switchTab('tabSettings', this)">⚙️ ตั้งค่า</div>
+        </div>
+        <div id="loading">⏳ กำลังประมวลผลข้อมูล...</div>
+
+        <!-- แท็บแลกรางวัล -->
+        <div id="tabRedeem" class="tab-content">
+            <button class="btn" style="background: #0277bd; width: auto; margin-bottom: 15px;" onclick="fetchData()">🔄 โหลดคิวล่าสุด</button>
+            <div style="max-height: 400px; overflow-y: auto;"><table><tbody id="redeemTable"></tbody></table></div>
+        </div>
+
+        <!-- แท็บนักเรียน -->
+        <div id="tabUsers" class="tab-content active">
+            <button class="btn" style="background: #0277bd; width: auto; margin-bottom: 15px;" onclick="fetchData()">🔄 อัปเดตข้อมูลนักเรียน</button>
+            <div style="max-height: 500px; overflow-y: auto;"><table><thead><tr><th>รหัส</th><th>ชั้น</th><th>นักเรียน</th><th>🏆 Exp</th><th>💰 Coins</th></tr></thead><tbody id="userTable"></tbody></table></div>
+        </div>
+
+        <!-- แท็บเพิ่มภารกิจ -->
+        <div id="tabQuest" class="tab-content">
+            <div class="form-group"><label>หัวข้อภารกิจ</label>
+            <input type="text" id="qTitle"></div>
+            
+<div class="form-group">
+                <label>ประเภทภารกิจและภาษา</label>
+                <select id="qType">
+			<option value="vowel_th">สระ (ภาษาไทย)</option>
+			<option value="consonant_th">พยัญชนะ (ภาษาไทย)</option>
+			<option value="spelling_th">🇹🇭 การอ่านสะกดคำ (ภาษาไทย)</option>
+                    <option value="word_th">คำศัพท์ (ภาษาไทย)</option>
+                    <option value="sentence_th">ประโยค (ภาษาไทย)</option>
+                    <option value="story_th">เรื่องสั้น (ภาษาไทย)</option>
+		        
+                    
+                    
+                    <option value="word_en">คำศัพท์ (English)</option>
+                    <option value="sentence_en">ประโยค (English)</option>
+                     <option value="consonant_en">พยัญชนะ (English)</option>
+              
+                </select>
+            </div>
+            <div class="form-group">
+                <label>เนื้อหา (คั่นข้อด้วยเครื่องหมาย | ) 
+                    <br><small style="color:#d84315; font-weight:normal;">💡 ทริค: หากเป็นพยัญชนะหรือสะกดคำ ให้ใช้เครื่องหมาย = คั่น เช่น <b>มะนาว=มออะมะนออาวอนาว</b> หรือ <b>ก=กอ</b></small>
+                </label>
+                <textarea id="qContent" rows="4"></textarea>
+            </div>
+
+
+
+                       <div style="flex:1"><label>ความยาก</label>
+    <select id="qDiff">
+        <option value="⭐">⭐ ง่าย</option>
+        <option value="⭐⭐">⭐⭐ ปานกลาง</option>
+        <option value="⭐⭐⭐">⭐⭐⭐ ยาก</option>
+        <option value="⭐⭐⭐⭐">⭐⭐⭐⭐ หายาก</option>
+        <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐ ตำนาน</option>
+    </select>
+</div>
+<div style="flex:1"><label>รางวัล Exp</label><input type="number" id="qExp" value="10"></div>
+<div style="flex:1"><label>รางวัล Coins</label><input type="number" id="qCoins" value="10"></div>
+            <div class="form-group"><label>🎁 รหัสของรางวัลไอเทมพิเศษหลังอ่านจบ (เก็บเข้ากระเป๋าเด็กอัตโนมัติ)</label><input type="text" id="qItemRewardID" placeholder="เช่น S12345 หรือ BOX01"></div>
+            <button class="btn" onclick="addQuest()">➕ บันทึกภารกิจลงกระดาน</button>
+        </div>
+
+        <!-- 🌟 แท็บร้านค้า (ปรับปรุงใหม่ เพิ่มการกำหนด ID เอง) 🌟 -->
+        <div id="tabShop" class="tab-content">
+            <div class="info-box">
+                <b>💡 รหัสประจำตัวละครหลัก (สำหรับชุดแต่งกาย):</b><br>
+                B1 = เด็กผู้ชาย 1 | B2 = เด็กผู้ชาย 2 | G1 = เด็กผู้หญิง 1 | G2 = เด็กผู้หญิง 2
+            </div>
+            <div class="form-group">
+                <label>รหัสสินค้า (Item ID)</label>
+                <input type="text" id="sItemId" placeholder="เว้นว่างเพื่อสุ่มอัตโนมัติ หรือ พิมพ์รหัสเอง เช่น BOX_CLOTHES">
+            </div>
+            <div class="form-group"><label>ชื่อไอเทม</label><input type="text" id="sName" placeholder="เช่น กล่องสุ่มชุดแฟนซี"></div>
+            <div class="form-group">
+                <label>หมวดหมู่สินค้า:</label>
+                <select id="sItemType" onchange="toggleCostumeMenu()">
+                    <option value="costume">👕 ชุดแต่งกาย / ของจัดฉาก</option>
+                    <option value="avatar">👥 ตัวละครเสริม</option>
+                    <option value="frame">🖼️ กรอบรูปโปรไฟล์ (Frame)</option>
+                    <option value="rename">🏷️ ไอเทมเปลี่ยนชื่อ (เก็บเข้ากระเป๋า)</option>
+                    <option value="buff">🔥 ไอเทมบัฟ (เก็บเข้ากระเป๋า)</option>
+                    <option value="box">📦 กล่องสุ่ม (Gacha Box)</option>
+                    <option value="real">🎁 ของรางวัลจริง</option>
+		    <option value="melody">🎵 เสียงเพลง (Melody)</option>
+                </select>
+                <div id="costumeMenu" style="display: block; background: #bbdefb; padding: 12px; border-radius: 5px; margin-top:5px;">
+                    <label>ส่วนสวมใส่ร่างกาย (เฉพาะชุด/ฉาก):</label>
+                    <select id="sLayerType">
+                        <option value="head">🎩 ส่วนหัว</option><option value="face">😎 ใบหน้า</option>
+                        <option value="body_shirt">👕 เสื้อช่วงบน</option><option value="body_pants">🩳 กางเกง/กระโปรง</option>
+                        <option value="body_dress">👗 ชุดเดรสเต็มตัว</option><option value="shoes">👟 รองเท้า</option>
+                       <option value="full_body">👘 ชุดเซ็ตเต็มตัว (แทนที่ร่างเดิม)</option>
+                        <option value="handheld">⚔️ ถือในมือ</option><option value="bg">🖼️ ฉากพื้นหลัง</option>
+                    </select>
+                    <label style="margin-top:10px;">🔗 พิกัดรูปเลเยอร์ทับตัวละคร:</label><input type="text" id="sLayerImage" placeholder="เช่น ./images/shirt.png">
+                    <label style="margin-top:10px;">👥 ใส่ได้เฉพาะ ID (B1,B2,G1,G2 หรือ all):</label><input type="text" id="sCompatibleChars" value="all">
+                </div>
+            </div>
+            <div class="form-group"><label>🔗 รูปไอคอนร้านค้า/กระเป๋า (หรืออีโมจิ):</label><input type="text" id="sIcon" placeholder="เช่น ./images/box.png หรือ 📦"></div>
+            <div class="form-group"><label>ราคา (เหรียญ)</label><input type="number" id="sPoints" value="50"></div>
+<div class="form-group">
+                <label>จำกัดการแลก (ชิ้น/เดือน) 
+                    <br><small style="color:#757575;">*ใส่ตัวเลขโควต้าสำหรับของรางวัลจริง หากใส่ 0 คือไม่จำกัด</small>
+                </label>
+                <input type="number" id="iLimit" value="0" min="0">
+            </div>
+        </div>
+            <button class="btn" style="background: #ef6c00;" onclick="addShopItem()">➕ บันทึกสินค้าลงร้านค้า</button>
+
+		
+
+        <!-- 🌟 แท็บจัดการกล่องสุ่ม 🌟 -->
+        <div id="tabGacha" class="tab-content">
+            <h3 style="color:#00838f;">🎲 ตั้งค่าเรตการออกไอเทมในกล่องสุ่ม</h3>
+            <div class="info-box">
+                <b>วิธีใช้งาน:</b> ให้พิมพ์รหัสของกล่อง (เช่น BOX_CLOTHES) ในช่องแรก และพิมพ์รหัสสินค้าที่จะให้อยู่ในกล่อง (เช่น S123) ในช่องที่สอง พร้อมกำหนด % การออกรวมกันให้ได้ 100%
+            </div>
+            <div id="gachaContainer"></div>
+            <button onclick="addGachaRow()" class="btn" style="background:#0277bd; width:auto; margin-bottom:15px;">+ เพิ่มไอเทมลงกล่องสุ่ม</button>
+            <button class="btn" onclick="saveGachaConfig()" style="background:#6a1b9a;">💾 บันทึกข้อมูลกล่องสุ่มทั้งหมด</button>
+        </div>
+
+        <!-- แท็บคูปองโค้ด -->
+        <div id="tabCoupon" class="tab-content">
+            <div class="form-group"><label>รหัสโค้ดคูปอง</label><input type="text" id="cpCode" placeholder="เช่น newgame67"></div>
+            <div class="form-group"><label>รางวัลเหรียญ (Coins)</label><input type="number" id="cpReward" value="100"></div>
+            <div class="form-group"><label>จำกัดจำนวนผู้ใช้งาน</label><input type="number" id="cpMaxUses" value="10"></div>
+            <button class="btn" style="background: #6a1b9a;" onclick="addCoupon()">➕ สร้างคูปอง</button>
+            <hr>
+            <div style="max-height: 250px; overflow-y: auto;"><table><thead><tr><th>รหัสโค้ด</th><th>มูลค่า</th><th>สิทธิ์ใช้</th></tr></thead><tbody id="couponTable"></tbody></table></div>
+        </div>
+
+        <!-- แท็บจัดการยศ -->
+        <div id="tabRank" class="tab-content">
+            <div id="rankContainer"></div>
+            <button onclick="addRankRow()" class="btn" style="background:#0277bd; width:auto; margin-bottom:15px;">+ เพิ่มระดับยศ</button>
+            <button class="btn" onclick="saveRanks()">💾 บันทึกระบบยศ</button>
+        </div>
+
+        <!-- แท็บตั้งค่าระบบ -->
+        <div id="tabSettings" class="tab-content">
+            <h3 style="color:#00838f;">📈 สูตรเลเวล</h3>
+            <div class="form-group"><label>เลเวล 1 เริ่มที่ (Exp):</label><input type="number" id="lvlBase"></div>
+            <div class="form-group"><label>เพิ่มขึ้นทีละ:</label><input type="number" id="lvlStep"></div>
+            <div class="form-group"><label>โบนัสทุกๆ 5 เลเวล:</label><input type="number" id="lvlBonus"></div>
+            <button class="btn" style="background:#00838f; margin-bottom:20px;" onclick="saveLevelSettings()">💾 บันทึกสูตรเลเวล</button>
+            <hr>
+            <div id="classContainer"></div><button onclick="addClassRow()" class="btn" style="background:#0277bd; width:auto; margin-bottom:15px;">+ เพิ่มระดับชั้น</button>
+            <button class="btn" onclick="saveClasses()">💾 บันทึกตารางระดับชั้น</button>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBxEl71fkgNZ3QUMACs9soxRzMHy8KDWsgw7bgXAyLoRm7bb1mkUnhMkuW7CNLf5I0sw/exec";
+        let allRanks = []; let allClasses = []; let globalUsers = []; let allGacha = [];
+
+        window.onload = fetchData;
+        function switchTab(id, el) { document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.getElementById(id).classList.add('active'); el.classList.add('active'); }
+        function toggleCostumeMenu() { const type = document.getElementById('sItemType').value; document.getElementById('costumeMenu').style.display = (type === 'costume' || type === 'avatar') ? "block" : "none"; }
+
+        async function fetchData() {
+            try {
+                const data = await (await fetch(SCRIPT_URL)).json();
+                globalUsers = data.users || [];
+                let redeemHTML = ""; if(data.redemptions) { data.redemptions.reverse().forEach(r => { if(r.Status !== "รับของแล้ว") redeemHTML += `<tr><td>${r.Name}</td><td><b>${r.ItemName}</b></td><td><button onclick="approveRedeem('${r.RedeemID}')" class="btn" style="padding:5px;">รับของแล้ว</button></td></tr>`; }); } document.getElementById('redeemTable').innerHTML = redeemHTML;
+                let userHTML = ""; globalUsers.forEach(u => { userHTML += `<tr><td>${u.UserID}</td><td>${u.ClassName||'-'}</td><td>${u.Avatar} ${u.DisplayName}</td><td><b>${u.TotalPoints}</b></td><td><b style="color:#ef6c00;">${u.Coins}</b></td></tr>`; }); document.getElementById('userTable').innerHTML = userHTML;
+                let cpHTML = ""; if(data.coupons) { data.coupons.forEach(c => { cpHTML += `<tr><td><b>${c.Code}</b></td><td>+${c.CoinReward}</td><td>${c.CurrentUses} / ${c.MaxUses}</td></tr>`; }); } document.getElementById('couponTable').innerHTML = cpHTML;
+                
+                const b = data.settings.find(s=>s.SettingKey==='LevelBaseExp'); if(b) document.getElementById('lvlBase').value = b.SettingValue;
+                const s = data.settings.find(s=>s.SettingKey==='LevelIncrement'); if(s) document.getElementById('lvlStep').value = s.SettingValue;
+                const bn = data.settings.find(s=>s.SettingKey==='Level5Bonus'); if(bn) document.getElementById('lvlBonus').value = bn.SettingValue;
+
+                allClasses = data.classes || []; renderClasses();
+                allRanks = data.ranks || []; renderRanks();
+                allGacha = data.gacha || []; renderGacha();
+            } catch(e){}
+        }
+
+        async function sendAPI(payload, cb) { document.getElementById('loading').style.display = "block"; await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) }); document.getElementById('loading').style.display = "none"; cb(); }
+        function approveRedeem(id) { if(confirm("ยืนยันให้รางวัล?")) sendAPI({ action: "updateRedeem", redeemId: id, status: "รับของแล้ว" }, () => { fetchData(); }); }
+        
+        function addQuest() { sendAPI({ action: "addQuest", questId: "Q"+Date.now(), title: document.getElementById('qTitle').value, type: document.getElementById('qType').value, content: document.getElementById('qContent').value, difficulty: document.getElementById('qDiff').value, points: document.getElementById('qExp').value + "," + document.getElementById('qCoins').value , isSet: "false", assignedClasses: "all", itemRewardID: document.getElementById('qItemRewardID').value }, () => { alert("บันทึกสำเร็จ"); fetchData(); }); }
+        function addCoupon() { sendAPI({ action: "addCoupon", couponId: "CP"+Date.now(), code: document.getElementById('cpCode').value, coinReward: document.getElementById('cpReward').value, maxUses: document.getElementById('cpMaxUses').value }, () => { alert("สร้างคูปองสำเร็จ!"); fetchData(); }); }
+        function saveLevelSettings() { sendAPI({ action: "saveSettings", settings: { LevelBaseExp: document.getElementById('lvlBase').value, LevelIncrement: document.getElementById('lvlStep').value, Level5Bonus: document.getElementById('lvlBonus').value } }, () => { alert("บันทึกสูตรเลเวลสำเร็จ!"); fetchData(); }); }
+
+        function addShopItem() {
+            let itemIdInput = document.getElementById('sItemId').value.trim();
+            let finalItemId = itemIdInput ? itemIdInput : "S" + Date.now(); // ถ้าไม่ใส่รหัส ให้สุ่มอัตโนมัติ
+            
+            let itemType = document.getElementById('sItemType').value; 
+            let layerType = (itemType === 'costume') ? document.getElementById('sLayerType').value : (itemType === 'avatar' ? 'partner' : 'none');
+            // ตัวอย่างการเพิ่มค่า Limit ส่งไปให้ระบบหลังบ้าน
+        let payload = {
+            action: "addShopItem", // หรือชื่อ action ที่คุณครูใช้อยู่
+            /* ... ข้อมูลอื่นๆ เช่น ชื่อ ราคา ... */
+            limitPerMonth: document.getElementById('iLimit').value // 🌟 เพิ่มบรรทัดนี้
+        };
+            sendAPI({ action: "addShopItem", itemId: finalItemId, name: document.getElementById('sName').value, points: document.getElementById('sPoints').value, icon: document.getElementById('sIcon').value||"🎁", itemType: itemType, layerType: layerType, layerImage: document.getElementById('sLayerImage').value, compatibleChars: document.getElementById('sCompatibleChars').value }, () => { alert("บันทึกสินค้าลงร้านสำเร็จ"); fetchData(); });
+        }
+
+        // 🌟 กาชาปอง ปรับแต่งช่องรับ ID 🌟
+        function renderGacha() {
+            document.getElementById('gachaContainer').innerHTML = allGacha.map((g, i) => `
+                <div style="display:flex; gap:10px; margin-bottom:10px; background:#f3e5f5; padding:10px; border-radius:5px;">
+                    <input type="text" value="${g.BoxLevel||''}" class="g-box" placeholder="รหัสของกล่อง (เช่น BOX01)" style="flex:1;">
+                    <input type="text" value="${g.ItemID||''}" class="g-item" placeholder="รหัสไอเทมที่จะดรอป (เช่น S123)" style="flex:1;">
+                    <input type="number" value="${g.DropRatePercent||'0'}" class="g-rate" placeholder="โอกาสสุ่มออก (%)" style="flex:1;">
+                    <button onclick="this.parentElement.remove()" class="btn" style="background:#e53935; width:auto; padding:5px 10px;">ลบ</button>
+                </div>`).join('');
+        }
+        function addGachaRow() { allGacha.push({BoxLevel:"", ItemID:"", DropRatePercent:""}); renderGacha(); }
+        function saveGachaConfig() {
+            let boxes = document.querySelectorAll('.g-box'); let items = document.querySelectorAll('.g-item'); let rates = document.querySelectorAll('.g-rate'); let newGacha = [];
+            for(let i=0; i<boxes.length; i++) { if(items[i].value.trim() && boxes[i].value.trim()) newGacha.push({boxLevel: boxes[i].value.trim(), itemId: items[i].value.trim(), dropRate: rates[i].value}); }
+            sendAPI({ action: "saveGachaConfig", gachaData: newGacha }, () => { alert("บันทึกตารางกล่องสุ่มสำเร็จ!"); fetchData(); });
+        }
+
+        function renderRanks() { document.getElementById('rankContainer').innerHTML = allRanks.map((r, i) => `<div style="display:flex; gap:10px; margin-bottom:10px;"><input type="text" value="${r.RankName||''}" class="r-name" placeholder="ชื่อยศ" style="flex:2;"><input type="number" value="${r.MinPoints||'0'}" class="r-pts" placeholder="Exp ขั้นต่ำ" style="flex:1;">
+<input type="text" value="${r.RankIcon||'⭐'}" class="r-icon" placeholder="เช่น ./images/class/c1.png" style="flex:1;"><button onclick="this.parentElement.remove()" class="btn" style="background:#e53935; width:auto; padding:5px 10px;">ลบ</button></div>`).join(''); }
+        function addRankRow() { allRanks.push({RankName:"", MinPoints:"", RankIcon:"⭐"}); renderRanks(); }
+        function saveRanks() { let names = document.querySelectorAll('.r-name'); let pts = document.querySelectorAll('.r-pts'); let icons = document.querySelectorAll('.r-icon'); let newRanks = []; for(let i=0; i<names.length; i++) { if(names[i].value.trim()) newRanks.push({name: names[i].value.trim(), points: pts[i].value, icon: icons[i].value.trim()}); } sendAPI({ action: "saveRank", ranks: newRanks }, () => { alert("บันทึกระบบยศสำเร็จ!"); fetchData(); }); }
+
+        function renderClasses() { document.getElementById('classContainer').innerHTML = allClasses.map((c, i) => `<div style="display:flex; gap:10px; margin-bottom:10px;"><input type="text" value="${c.ClassName}" class="c-name" style="flex:1"><button onclick="this.parentElement.remove()" class="btn" style="background:#e53935; width:auto; padding:5px 10px;">ลบ</button></div>`).join(''); }
+        function addClassRow() { allClasses.push({ClassName:""}); renderClasses(); }
+        function saveClasses() { const names = document.querySelectorAll('.c-name'); let newClasses = []; for(let i=0; i<names.length; i++) { if(names[i].value.trim()) newClasses.push(names[i].value.trim()); } sendAPI({ action: "saveClasses", classes: newClasses }, () => { alert("สำเร็จ"); fetchData(); }); }
+    </script>
+</body>
+</html>
