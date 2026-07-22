@@ -772,6 +772,7 @@
                 <div class="shop-tab" onclick="filterShop('box', this)">📦 กล่องสุ่มไอเทม</div>
                 <div class="shop-tab" onclick="filterShop('buff', this)">🔥 ไอเทมบัฟพิเศษ</div>
 <div class="shop-tab" onclick="filterShop('card', this)">🃏 การ์ดต่อสู้</div>
+<div class="shop-tab" onclick="filterShop('potion', this)">🧪 ยารักษา</div>
 		<div class="shop-tab" onclick="filterShop('real', this)">🎁 ของรางวัลจริง</div>
             </div>
             <div class="grid" id="shopGridBox"></div>
@@ -1372,12 +1373,29 @@ cardUpgradeConfig = res.cardUpgrades || [];
             }
             
             // ถ้าเป็นของใช้งานทั่วไป (บัฟ, กล่องสุ่ม, ฯลฯ)
+         
             if (!cardObj && !eqObj) {
                 let typeName = s.ItemType === 'costume' ? 'ชุดแต่งกาย' : s.ItemType === 'buff' ? 'บัฟพิเศษ' : s.ItemType === 'box' ? 'กล่องสุ่ม' : s.ItemType === 'real' ? 'ของรางวัลจริง' : s.ItemType;
                 detailsHtml += `<div style="color:#555; font-size:14px; margin-top:10px; background:#f5f5f5; padding:10px; border-radius:8px;">
                     <b>หมวดหมู่:</b> ${typeName}
                 </div>`;
                 if (s.ItemDesc) detailsHtml += `<div style="color:#444; font-size:14px; margin-top:5px;">${s.ItemDesc}</div>`;
+                
+                // 🌟 เพิ่มส่วนนี้: ถ้าเป็นกล่องสุ่ม ให้แสดงรายชื่อไอเทมด้านใน
+                if (s.ItemType === 'box' && typeof allGacha !== 'undefined') {
+                    let possibleDrops = allGacha.filter(g => String(g.BoxLevel) === String(itemId));
+                    if (possibleDrops.length > 0) {
+                        detailsHtml += `<div style="text-align:left; background:#fff3e0; padding:15px; border-radius:10px; border:1px dashed #ff9800; margin-top:10px;">
+                            <div style="color:#e65100; font-size:14px; margin-bottom:5px;"><b>🎁 ไอเทมที่มีโอกาสสุ่มได้:</b></div>
+                            <ul style="margin: 0; padding-left: 20px; color:#555; font-size:13px; line-height: 1.6;">`;
+                        possibleDrops.forEach(drop => {
+                            let dropItem = allS.find(x => String(x.ItemID) === String(drop.ItemID));
+                            let dropName = dropItem ? dropItem.ItemName : drop.ItemID;
+                            detailsHtml += `<li>${dropName}</li>`;
+                        });
+                        detailsHtml += `</ul></div>`;
+                    }
+                }
             }
 
             Swal.fire({
@@ -1553,11 +1571,26 @@ let rIconHtml = (rIconStr.startsWith("http") || rIconStr.startsWith("./") || rIc
                     return qId !== "" && !completedIds.includes(qId);
                 });
                 
+                // ดึงเลเวลปัจจุบันของผู้เล่นมาเตรียมไว้
+                const currentLevel = getLevelDetails(curU.points).level;
+
                 let filteredQ = availQ.filter(q => { 
+                    // 1. ตรวจสอบระดับชั้น
                     let assigned = String(q.AssignedClasses || "").trim().toLowerCase(); 
-                    if (assigned === "" || assigned === "all" || assigned === "undefined") return true;
-                    if (curU.className && assigned.includes(String(curU.className).trim().toLowerCase())) return true;
-                    return false;
+                    let matchClass = false;
+                    if (assigned === "" || assigned === "all" || assigned === "undefined") {
+                        matchClass = true;
+                    } else if (curU.className && assigned.includes(String(curU.className).trim().toLowerCase())) {
+                        matchClass = true;
+                    }
+                    
+                    // 2. ตรวจสอบเลเวล (ดึงค่าจากคอลัมน์ MinLevel ใน Sheet)
+                    // หากไม่ได้กรอกค่าใน Sheet จะกำหนดให้ขั้นต่ำคือเลเวล 1
+                    let reqLevel = parseInt(q.MinLevel) || 1;
+                    let matchLevel = (currentLevel >= reqLevel);
+
+                    // ต้องผ่านทั้งเงื่อนไขชั้นเรียนและเลเวลถึงจะแสดง
+                    return matchClass && matchLevel;
                 });
                 
                 if(filteredQ.length === 0) { 
@@ -1648,11 +1681,14 @@ let t = q.Type;
                     const itemData = allS.find(s => String(s.ItemID) === String(itemId));
                     if(itemData) {
                         let sType = String(itemData.ItemType).trim().toLowerCase();
-                        if(sType === 'buff' || sType === 'rename' || sType === 'box' || sType === 'potion') {
+                        // แก้บรรทัดนี้ใน refreshUI
+                        if(sType === 'buff' || sType === 'rename' || sType === 'box' || sType === 'potion' || sType === 'resource') {
                             let actionBtn = "";
                             if(sType === 'rename') { actionBtn = `<button class="btn btn-secondary" style="width:100%; margin-top:10px;" onclick="switchTab('pTab')">ไปโปรไฟล์</button>`; } 
                             else if(sType === 'box') { actionBtn = `<button class="btn" style="background:#8e24aa; color:white; width:100%; margin-top:10px;" onclick="useItem('${itemData.ItemID}', '${itemData.ItemType}', '${itemData.ItemName}')">🎁 เปิดกล่อง</button>`; }
                             else if(sType === 'potion') { actionBtn = `<button class="btn" style="background:#4caf50; color:white; width:100%; margin-top:10px;" onclick="useItem('${itemData.ItemID}', '${itemData.ItemType}', '${itemData.ItemName}')">⚔️ ใช้ในปราสาท</button>`; }
+                            // 🌟 เพิ่มบรรทัดนี้สำหรับ Resource
+                            else if(sType === 'resource') { actionBtn = `<button class="btn" style="background:#00bcd4; color:white; width:100%; margin-top:10px;" onclick="useItem('${itemData.ItemID}', '${itemData.ItemType}', '${itemData.ItemName}')">✨ รับรางวัล</button>`; }
                             else { actionBtn = `<button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="useItem('${itemData.ItemID}', '${itemData.ItemType}', '${itemData.ItemName}')">ใช้งาน</button>`; }
                             
                             // 🌟 จุดที่เพิ่มเข้ามา: ปุ่มทิ้งไอเทมสีแดง จะถูกต่อท้ายเข้าไปใน actionBtn เสมอ
@@ -1752,15 +1788,34 @@ if (curU.equipped.melody) {
             }
         }
         
-        // คำนวณพลังบวกเพิ่มจากอุปกรณ์
+     
+    // 🌟 ดึงพลังบวกเพิ่มจากอุปกรณ์ โดยใช้ข้อมูลจากตาราง CardUpgrades
         if (typeof allCardEquips !== 'undefined') {
             ['equipBook', 'equipStationery', 'equipBackpack'].forEach(slot => {
                 if (curU.equipped[slot]) {
                     let eqData = allCardEquips.find(e => String(e.EquipID) === String(curU.equipped[slot]));
                     if (eqData) {
-                        totalAtk += Number(eqData.BonusATK) || 0;
-                        totalHp += Number(eqData.BonusHP) || 0;
-                        totalCrit += Number(eqData.CritRate) || 0;
+                        let eqLevel = (curU.equipped.equipLevels && curU.equipped.equipLevels[curU.equipped[slot]]) ? parseInt(curU.equipped.equipLevels[curU.equipped[slot]]) : 0;
+                        
+                        // ตั้งค่าเริ่มต้นจากตารางอุปกรณ์ (เลเวล 0)
+                        let currentEqAtk = Number(eqData.BonusATK) || 0;
+                        let currentEqHp = Number(eqData.BonusHP) || 0;
+                        let currentEqCrit = Number(eqData.CritRate) || 0;
+
+                        // หากมีการตีบวก ให้ไปค้นหาสเตตัสสุทธิจาก CardUpgrades
+                        if (eqLevel > 0 && typeof cardUpgradeConfig !== 'undefined') {
+                            let upgData = cardUpgradeConfig.find(u => String(u.CardID) === String(eqData.EquipID) && parseInt(u.TargetStar) === eqLevel);
+                            if (upgData) {
+                                currentEqAtk = upgData.NewATK !== undefined && upgData.NewATK !== "" ? Number(upgData.NewATK) : currentEqAtk;
+                                currentEqHp = upgData.NewHP !== undefined && upgData.NewHP !== "" ? Number(upgData.NewHP) : currentEqHp;
+                                // รองรับคอลัมน์ NewCrit ในชีต (ถ้ามี)
+                                currentEqCrit = upgData.NewCrit !== undefined && upgData.NewCrit !== "" ? Number(upgData.NewCrit) : currentEqCrit;
+                            }
+                        }
+
+                        totalAtk += currentEqAtk;
+                        totalHp += currentEqHp;
+                        totalCrit += currentEqCrit;
                     }
                 }
             });
@@ -2029,6 +2084,18 @@ if (curU.equipped.melody) {
             });
             return; // หยุดการทำงาน ไม่ให้ไปต่อ
         }
+else if(itemType === 'resource') {
+            let pData = allConsumables.find(c => String(c.ItemID) === String(itemId)) || allS.find(s => String(s.ItemID) === String(itemId));
+            let valArr = String(pData.EffectValue || "50,50").split(',');
+                    let addExp = Number(valArr[0]) || 0;
+                    let addCoin = Number(valArr[1]) || 0;
+
+                    curU.points += addExp;
+                    curU.coins += addCoin;
+                    refreshUI(); 
+                    await syncDB("ใช้ทรัพยากร", itemName);
+                    showPopup("🎉 รับรางวัลสำเร็จ!", `คุณเปิดใช้ ${itemName}<br><br>ได้รับโบนัส:<br>🏆 <b style="color:#4caf50;">+${addExp} Exp</b><br>💰 <b style="color:#ff9800;">+${addCoin} Coins</b>`, "✨");
+                }
 
 else if(itemType === 'potion') {
     // ถ้านักเรียนมากดในหน้ากระเป๋าปกติ จะแจ้งเตือนให้ไปใช้ในปราสาท และไม่หักไอเทม
@@ -3395,27 +3462,43 @@ let currentLbMode = 'points';
             Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'สวมใส่สำเร็จ!', showConfirmButton: false, timer: 1500});
         };
 // 🎨 ฟังก์ชันวาดช่องสวมใส่ 1 ช่อง (แสดงสเตตัสในตัว)
-        function renderEquipSlot(slotVar, slotName, equipTypeStr) {
+       function renderEquipSlot(slotVar, slotName, equipTypeStr) {
             let itemId = (curU.equipped && curU.equipped[slotVar]) ? curU.equipped[slotVar] : null;
             
             if (itemId) {
                 let eq = (typeof allCardEquips !== 'undefined') ? allCardEquips.find(e => String(e.EquipID) === String(itemId)) : null;
                 if (eq) {
-                    // จัดเตรียมข้อความสเตตัส
+                   let eqLevel = (curU.equipped.equipLevels && curU.equipped.equipLevels[itemId]) ? parseInt(curU.equipped.equipLevels[itemId]) : 0;
+                    
+                    let eqAtk = Number(eq.BonusATK) || 0;
+                    let eqHp = Number(eq.BonusHP) || 0;
+                    let eqCrit = Number(eq.CritRate) || 0;
+
+                    // ดึงค่าตามเลเวลจาก CardUpgrades เพื่อแสดงบนหน้าจอ
+                    if (eqLevel > 0 && typeof cardUpgradeConfig !== 'undefined') {
+                        let upgData = cardUpgradeConfig.find(u => String(u.CardID) === String(itemId) && parseInt(u.TargetStar) === eqLevel);
+                        if (upgData) {
+                            eqAtk = upgData.NewATK !== undefined && upgData.NewATK !== "" ? Number(upgData.NewATK) : eqAtk;
+                            eqHp = upgData.NewHP !== undefined && upgData.NewHP !== "" ? Number(upgData.NewHP) : eqHp;
+                            eqCrit = upgData.NewCrit !== undefined && upgData.NewCrit !== "" ? Number(upgData.NewCrit) : eqCrit;
+                        }
+                    }
+
                     let statText = "";
-                    if(Number(eq.BonusATK)>0) statText += `<span style="color:#d32f2f;">⚔️+${eq.BonusATK}</span> `;
-                    if(Number(eq.BonusHP)>0) statText += `<span style="color:#388e3c;">❤️+${eq.BonusHP}</span> `;
-                    if(Number(eq.CritRate)>0) statText += `<span style="color:#f57c00;">⚡+${eq.CritRate}%</span>`;
+
+                    // ป้าย +1 ถึง +15 และขอบแสง
+                    let levelBadge = eqLevel > 0 ? `<div style="position:absolute; top:-5px; right:-5px; background: #e91e63; color:white; font-size:12px; font-weight:bold; padding:2px 6px; border-radius:10px; z-index:5;">+${eqLevel}</div>` : '';
+                    let glowStyle = eqLevel >= 15 ? `box-shadow: 0 0 15px #ffd700, inset 0 0 10px #ffd700; border-color: #ffd700; animation: pulseGlow 1.5s infinite;` : `box-shadow:0 4px 6px rgba(0,0,0,0.1);`;
 
                     return `
-                    <div onclick="handleEquipClick('${slotVar}', '${slotName}', '${equipTypeStr}')" style="cursor:pointer; background:white; border:2px solid #4caf50; border-radius:10px; width:100px; min-height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; box-shadow:0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; padding: 5px; box-sizing: border-box;">
-                        <img src="${eq.ImageURL}" style="width:40px; height:40px; object-fit:contain;">
-                        <div style="font-size:11px; font-weight:bold; margin-top:4px; color:#2e7d32; text-align:center; line-height:1.2;">${eq.EquipName}</div>
-                        <div style="font-size:10px; margin-top:5px; text-align:center;">${statText}</div>
+                    <div onclick="handleEquipClick('${slotVar}', '${slotName}', '${equipTypeStr}')" style="cursor:pointer; background:white; border:2px solid #4caf50; border-radius:10px; width:100px; min-height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; padding: 5px; box-sizing: border-box; ${glowStyle}">
+                        ${levelBadge}
+                        <img src="${eq.ImageURL}" style="width:40px; height:40px; object-fit:contain; z-index:2;">
+                        <div style="font-size:11px; font-weight:bold; margin-top:4px; color:#2e7d32; text-align:center; line-height:1.2; z-index:2;">${eq.EquipName}</div>
+                        <div style="font-size:10px; margin-top:5px; text-align:center; z-index:2;">${statText}</div>
                     </div>`;
                 }
             }
-            // ถ้าช่องว่างเปล่า
             return `
             <div onclick="handleEquipClick('${slotVar}', '${slotName}', '${equipTypeStr}')" style="cursor:pointer; background:#fff; border:2px dashed #bbb; border-radius:10px; width:100px; min-height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: background 0.2s; box-sizing: border-box;">
                 <div style="font-size:24px; color:#bbb;">+</div>
@@ -3424,36 +3507,91 @@ let currentLbMode = 'points';
         }
 
         // ⚙️ ฟังก์ชันจัดการเมื่อคลิกที่ช่องอุปกรณ์ (สวมใส่ / ถอด)
-        function handleEquipClick(slotVar, slotName, equipTypeStr) {
+       // ⚙️ ฟังก์ชันจัดการเมื่อคลิกที่ช่องอุปกรณ์ (สวมใส่ / ถอด)
+       function handleEquipClick(slotVar, slotName, equipTypeStr) {
             if (!curU.equipped) curU.equipped = {};
+            if (!curU.equipped.equipLevels) curU.equipped.equipLevels = {}; // รองรับข้อมูลเลเวล
 
             if (curU.equipped[slotVar]) {
-                // 🛑 กรณีช่องมีไอเทมอยู่แล้ว -> แจ้งรายละเอียด + ถามว่าจะถอดไหม?
+                // ... [ส่วนของกรณีที่ใส่ไอเทมอยู่แล้ว ปล่อยไว้เหมือนเดิม ไม่ต้องแก้ครับ] ...
                 let eqId = curU.equipped[slotVar];
                 let eqData = allCardEquips.find(e => String(e.EquipID) === String(eqId));
                 
+                let eqLevel = curU.equipped.equipLevels[eqId] ? parseInt(curU.equipped.equipLevels[eqId]) : 0;
+                let dupesCount = curU.inventory.filter(id => id === eqId).length;
+
+                let eqAtk = Number(eqData.BonusATK) || 0;
+                let eqHp = Number(eqData.BonusHP) || 0;
+                let eqCrit = Number(eqData.CritRate) || 0;
+                
+                if (eqLevel > 0 && typeof cardUpgradeConfig !== 'undefined') {
+                    let upgData = cardUpgradeConfig.find(u => String(u.CardID) === String(eqId) && parseInt(u.TargetStar) === eqLevel);
+                    if (upgData) {
+                        eqAtk = upgData.NewATK !== undefined && upgData.NewATK !== "" ? Number(upgData.NewATK) : eqAtk;
+                        eqHp = upgData.NewHP !== undefined && upgData.NewHP !== "" ? Number(upgData.NewHP) : eqHp;
+                        eqCrit = upgData.NewCrit !== undefined && upgData.NewCrit !== "" ? Number(upgData.NewCrit) : eqCrit;
+                    }
+                }
+                
                 let statText = "";
-                if(Number(eqData.BonusATK)>0) statText += `<div style="color:#d32f2f;"><b>⚔️ พลังโจมตี:</b> +${eqData.BonusATK}</div>`;
-                if(Number(eqData.BonusHP)>0) statText += `<div style="color:#388e3c;"><b>❤️ พลังชีวิต:</b> +${eqData.BonusHP}</div>`;
-                if(Number(eqData.CritRate)>0) statText += `<div style="color:#f57c00;"><b>⚡ คริติคอล:</b> +${eqData.CritRate}%</div>`;
+                if(eqAtk>0) statText += `<div style="color:#d32f2f;"><b>⚔️ พลังโจมตี:</b> +${eqAtk}</div>`;
+                if(eqHp>0) statText += `<div style="color:#388e3c;"><b>❤️ พลังชีวิต:</b> +${eqHp}</div>`;
+                if(eqCrit>0) statText += `<div style="color:#f57c00;"><b>⚡ คริติคอล:</b> +${eqCrit}%</div>`;
+
+                let upgradeHtml = "";
+                if (eqLevel < 15) {
+                    let reqDupes = 1; // ค่าตั้งต้น
+                    let nextLevel = eqLevel + 1;
+                    
+                    // ดึงจำนวนของซ้ำที่ต้องใช้ในเลเวลถัดไปจากชีต
+                    if (typeof cardUpgradeConfig !== 'undefined') {
+                        let nextUpgData = cardUpgradeConfig.find(u => String(u.CardID) === String(eqId) && parseInt(u.TargetStar) === nextLevel);
+                        if (nextUpgData && nextUpgData.RequiredDupes !== undefined && nextUpgData.RequiredDupes !== "") {
+                            reqDupes = parseInt(nextUpgData.RequiredDupes);
+                        }
+                    }
+
+                    let canUpgrade = dupesCount >= reqDupes;
+                    let btnStyle = canUpgrade ? "background:linear-gradient(135deg, #ff9800, #f57c00); color:white;" : "background:#ccc; color:#666;";
+                    upgradeHtml = `
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
+                            <div style="font-size: 14px; margin-bottom: 5px;">ระดับปัจจุบัน: <b>+${eqLevel}</b> (สูงสุด +15)</div>
+                            <div style="font-size: 13px; color: ${canUpgrade ? '#388e3c' : '#d32f2f'}; margin-bottom: 8px;">ใช้วัตถุดิบซ้ำ ${reqDupes} ชิ้น (คุณมี ${dupesCount} ชิ้น)</div>
+                            <button onclick="upgradeEquipItem('${slotVar}', '${eqId}')" class="btn" style="${btnStyle} width: 100%; border-radius: 8px; padding: 8px;" ${canUpgrade ? '' : 'disabled'}>
+                                ✨ อัปเกรดตีบวกเป็น +${nextLevel}
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    upgradeHtml = `
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; color: #f57c00; font-weight: bold;">
+                            ⭐ อัปเกรดเต็ม +15 (MAX) แล้ว ⭐
+                        </div>
+                    `;
+                }
 
                 Swal.fire({
-                    title: `ถอด ${slotName}?`,
+                    title: `จัดการ ${slotName}`,
                     html: `
-                        <img src="${eqData.ImageURL}" style="width:80px; height:80px; object-fit:contain; margin-bottom:10px;">
+                        <div style="position:relative; display:inline-block;">
+                            ${eqLevel > 0 ? `<div style="position:absolute; top:-5px; right:-5px; background: #e91e63; color:white; font-size:14px; font-weight:bold; padding:4px 8px; border-radius:15px; box-shadow: 0 2px 5px rgba(0,0,0,0.4);">+${eqLevel}</div>` : ''}
+                            <img src="${eqData.ImageURL}" style="width:80px; height:80px; object-fit:contain; margin-bottom:10px;">
+                        </div>
                         <h4 style="margin: 0 0 10px 0; color:#333;">${eqData.EquipName}</h4>
-                        <div style="background:#f9f9f9; border:1px solid #ddd; border-radius:8px; padding:10px; margin-bottom:15px; font-size:14px; text-align: left; display: inline-block;">
+                        <div style="background:#f9f9f9; border:1px solid #ddd; border-radius:8px; padding:10px; margin-bottom:10px; font-size:14px; text-align: left; display: inline-block;">
                             ${statText}
-                        </div><br>
-                        คุณต้องการถอดไอเทมชิ้นนี้กลับเข้ากระเป๋าหรือไม่?
+                        </div>
+                        ${upgradeHtml}
                     `,
-                    icon: 'question',
                     showCancelButton: true,
-                    confirmButtonColor: '#e53935',
-                    confirmButtonText: 'ถอดไอเทม',
-                    cancelButtonText: 'ปิด'
+                    showDenyButton: true,
+                    showConfirmButton: false, 
+                    denyButtonColor: '#e53935',
+                    cancelButtonColor: '#9e9e9e',
+                    denyButtonText: 'ถอดไอเทม',
+                    cancelButtonText: 'ปิดหน้าต่าง'
                 }).then((res) => {
-                    if (res.isConfirmed) {
+                    if (res.isDenied) { 
                         curU.inventory.push(eqId); 
                         delete curU.equipped[slotVar]; 
                         refreshUI();
@@ -3461,9 +3599,8 @@ let currentLbMode = 'points';
                         Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'ถอดเข้ากระเป๋าแล้ว', showConfirmButton: false, timer: 1500});
                     }
                 });
-
             } else {
-                // 🟢 กรณีช่องว่างเปล่า (เหมือนเดิม)
+                // 🌟 [แก้ตรงนี้ครับ] โค้ดกรณีช่องว่างเปล่า ดึงค่าการตีบวกมาโชว์ในกล่องตัวเลือก
                 let available = curU.inventory.filter(id => {
                     let eq = allCardEquips.find(e => String(e.EquipID) === String(id));
                     return eq && eq.EquipType.toLowerCase() === equipTypeStr.toLowerCase();
@@ -3481,13 +3618,35 @@ let currentLbMode = 'points';
                     let eq = allCardEquips.find(e => String(e.EquipID) === String(id));
                     let count = available.filter(x => x === id).length;
                     
+                    // 🌟 เพิ่มระบบดึงค่าที่ผ่านการตีบวกมาใช้แสดงผล
+                    let eqLevel = (curU.equipped.equipLevels && curU.equipped.equipLevels[id]) ? parseInt(curU.equipped.equipLevels[id]) : 0;
+                    
+                    let eqAtk = Number(eq.BonusATK) || 0;
+                    let eqHp = Number(eq.BonusHP) || 0;
+                    let eqCrit = Number(eq.CritRate) || 0;
+
+                    // ค้นหาสเตตัสสุทธิที่ถูกอัปเกรดแล้ว
+                    if (eqLevel > 0 && typeof cardUpgradeConfig !== 'undefined') {
+                        let upgData = cardUpgradeConfig.find(u => String(u.CardID) === String(id) && parseInt(u.TargetStar) === eqLevel);
+                        if (upgData) {
+                            eqAtk = upgData.NewATK !== undefined && upgData.NewATK !== "" ? Number(upgData.NewATK) : eqAtk;
+                            eqHp = upgData.NewHP !== undefined && upgData.NewHP !== "" ? Number(upgData.NewHP) : eqHp;
+                            eqCrit = upgData.NewCrit !== undefined && upgData.NewCrit !== "" ? Number(upgData.NewCrit) : eqCrit;
+                        }
+                    }
+                    
                     let statText = "";
-                    if(Number(eq.BonusATK)>0) statText += `<span style="color:#d32f2f;">ATK +${eq.BonusATK}</span><br>`;
-                    if(Number(eq.BonusHP)>0) statText += `<span style="color:#388e3c;">HP +${eq.BonusHP}</span><br>`;
-                    if(Number(eq.CritRate)>0) statText += `<span style="color:#f57c00;">CRIT +${eq.CritRate}%</span>`;
+                    if(eqAtk > 0) statText += `<span style="color:#d32f2f;">ATK +${eqAtk}</span><br>`;
+                    if(eqHp > 0) statText += `<span style="color:#388e3c;">HP +${eqHp}</span><br>`;
+                    if(eqCrit > 0) statText += `<span style="color:#f57c00;">CRIT +${eqCrit}%</span>`;
+
+                    // 🌟 เพิ่มป้ายบอกเลเวลการตีบวกที่มุมขวาบนในหน้าเลือก (และกรอบเรืองแสงถ้า +15)
+                    let levelBadge = eqLevel > 0 ? `<div style="position:absolute; top:-5px; right:-5px; background: #e91e63; color:white; font-size:12px; font-weight:bold; padding:2px 6px; border-radius:10px; z-index:5; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">+${eqLevel}</div>` : '';
+                    let glowStyle = eqLevel >= 15 ? `box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); border-color: #ffd700; background: #fffde7;` : ``;
 
                     htmlOptions += `
-                        <div onclick="processEquipItem('${slotVar}', '${id}')" style="border:2px solid #ddd; border-radius:10px; padding:10px; cursor:pointer; width:120px; transition: border 0.2s;">
+                        <div onclick="processEquipItem('${slotVar}', '${id}')" style="position:relative; border:2px solid #ddd; border-radius:10px; padding:10px; cursor:pointer; width:120px; transition: border 0.2s; ${glowStyle}">
+                            ${levelBadge}
                             <img src="${eq.ImageURL}" style="width:50px; height:50px; object-fit:contain;">
                             <div style="font-size:12px; font-weight:bold; margin-top:5px; height:30px; overflow:hidden;">${eq.EquipName}</div>
                             <div style="font-size:11px; margin-top:5px; line-height:1.2;">${statText}</div>
@@ -3552,6 +3711,66 @@ let currentLbMode = 'points';
                 }
             }
         });
+
+// ⚙️ ฟังก์ชันสำหรับดำเนินการอัปเกรดตีบวกอุปกรณ์
+window.upgradeEquipItem = async function(slotVar, eqId) {
+    if (!curU.equipped) curU.equipped = {};
+    if (!curU.equipped.equipLevels) curU.equipped.equipLevels = {};
+
+    // ดึงเลเวลปัจจุบัน ถ้าไม่มีให้เริ่มที่ 0
+    let eqLevel = curU.equipped.equipLevels[eqId] ? parseInt(curU.equipped.equipLevels[eqId]) : 0;
+    let nextLevel = eqLevel + 1;
+    
+    // ป้องกันการอัปเกรดเกินลิมิต (สมมติว่าสุดที่ +15)
+    if (eqLevel >= 15) {
+        Swal.fire('ระดับสูงสุด', 'อุปกรณ์ชิ้นนี้ตีบวกถึงระดับสูงสุดแล้ว!', 'info');
+        return;
+    }
+
+    // คำนวณจำนวนไอเทมซ้ำที่ต้องใช้
+    let reqDupes = 1; 
+    if (typeof cardUpgradeConfig !== 'undefined') {
+        let nextUpgData = cardUpgradeConfig.find(u => String(u.CardID) === String(eqId) && parseInt(u.TargetStar) === nextLevel);
+        if (nextUpgData && nextUpgData.RequiredDupes !== undefined && nextUpgData.RequiredDupes !== "") {
+            reqDupes = parseInt(nextUpgData.RequiredDupes);
+        }
+    }
+
+    // ตรวจสอบว่ามีของซ้ำพอหรือไม่
+    let dupesCount = curU.inventory.filter(id => id === eqId).length;
+    if (dupesCount < reqDupes) {
+        Swal.fire('วัตถุดิบไม่พอ', `ต้องการไอเทมซ้ำ ${reqDupes} ชิ้นสำหรับการตีบวกครับ`, 'error');
+        return;
+    }
+
+    // ✂️ หักวัตถุดิบออกจากกระเป๋าตามจำนวนที่ต้องการ
+    let removedCount = 0;
+    let newInventory = [];
+    for (let i = 0; i < curU.inventory.length; i++) {
+        if (curU.inventory[i] === eqId && removedCount < reqDupes) {
+            removedCount++;
+        } else {
+            newInventory.push(curU.inventory[i]);
+        }
+    }
+    curU.inventory = newInventory;
+
+    // ⭐ บันทึกระดับเลเวลใหม่
+    curU.equipped.equipLevels[eqId] = nextLevel;
+
+    // ปิดหน้าต่างเดิม อัปเดต UI และบันทึกลงฐานข้อมูล
+    Swal.close();
+    refreshUI();
+    await syncDB("อัปเกรดอุปกรณ์", `ตีบวก ${eqId} เป็น +${nextLevel}`);
+
+    // 🎉 แสดงข้อความยินดีเมื่อตีบวกสำเร็จ
+    Swal.fire({
+        icon: 'success',
+        title: '✨ อัปเกรดสำเร็จ! ✨',
+        text: `อุปกรณ์ถูกตีบวกเป็น +${nextLevel} เรียบร้อยแล้ว พลังเพิ่มขึ้นพร้อมลุย!`,
+        confirmButtonColor: '#4caf50'
+    });
+};
 
     </script>
 </body>
